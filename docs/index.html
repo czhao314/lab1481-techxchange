@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lab 1481: Bob Prompts for the Clinical Staffing Optimizer</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #ffffff;
+      --surface: #f7f8fa;
+      --border: #e5e7eb;
+      --text: #1f2328;
+      --muted: #57606a;
+      --accent: #3b82d4;
+      --accent-light: #eff6ff;
+      --tag-step2: #7c5cd8;
+      --tag-step2-bg: #f3f0ff;
+      --tag-step4: #0e7490;
+      --tag-step4-bg: #ecfeff;
+      --green: #16a34a;
+      --green-bg: #f0fdf4;
+      --warn: #b45309;
+      --warn-bg: #fffbeb;
+    }
+
+    body {
+      font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+      font-size: 14px;
+      line-height: 1.65;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    /* ── Layout ── */
+    .layout { display: flex; min-height: 100vh; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 240px;
+      flex-shrink: 0;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 28px 0 40px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    .sidebar-logo {
+      padding: 0 20px 20px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+    .sidebar-logo h1 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.3;
+    }
+    .sidebar-logo p {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .sidebar-section {
+      padding: 6px 20px 4px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 10px;
+    }
+
+    .sidebar nav a {
+      display: block;
+      padding: 5px 20px;
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: none;
+      border-left: 3px solid transparent;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+    }
+    .sidebar nav a:hover {
+      color: var(--text);
+      background: var(--border);
+    }
+    .sidebar nav a.active {
+      color: var(--accent);
+      border-left-color: var(--accent);
+      background: var(--accent-light);
+      font-weight: 600;
+    }
+
+    /* ── Main ── */
+    .main {
+      flex: 1;
+      padding: 48px 52px 80px;
+      max-width: 860px;
+    }
+
+    /* ── Page header ── */
+    .page-header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 24px;
+      margin-bottom: 40px;
+    }
+    .page-header .eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .page-header h2 {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+    .page-header p {
+      color: var(--muted);
+      font-size: 14px;
+      max-width: 620px;
+    }
+
+    /* ── Section headings ── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 48px 0 6px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-header h3 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .section-intro {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 28px;
+      max-width: 620px;
+    }
+
+    /* ── Notebook tag ── */
+    .nb-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .nb-tag.step23 { background: var(--tag-step2-bg); color: var(--tag-step2); }
+    .nb-tag.step4  { background: var(--tag-step4-bg); color: var(--tag-step4); }
+
+    /* ── Index table ── */
+    .index-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+    .index-table th {
+      text-align: left;
+      padding: 7px 12px;
+      background: var(--surface);
+      border-bottom: 2px solid var(--border);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .index-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    .index-table tr:last-child td { border-bottom: none; }
+    .index-table td:first-child { font-weight: 700; white-space: nowrap; }
+    .index-table td code {
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 1px 5px;
+      border-radius: 3px;
+    }
+    .index-table a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .index-table a:hover { text-decoration: underline; }
+
+    /* ── Prompt card ── */
+    .prompt-card {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 28px;
+    }
+
+    .prompt-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 18px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .prompt-card-header .meta { flex: 1; }
+    .prompt-card-header .prompt-id {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+    .prompt-card-header h4 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .prompt-card-header .produces {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+    .prompt-card-header .produces code {
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 11px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 1px 5px;
+      border-radius: 3px;
+    }
+
+    .copy-btn {
+      flex-shrink: 0;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      align-self: flex-start;
+      transition: opacity 0.15s;
+    }
+    .copy-btn:hover { opacity: 0.85; }
+    .copy-btn.copied { background: var(--green); }
+
+    .prompt-body {
+      padding: 0;
+      background: #fafbfc;
+    }
+    .prompt-body pre {
+      margin: 0;
+      padding: 18px 20px;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 12.5px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: var(--text);
+      border: none;
+      background: transparent;
+    }
+
+    /* ── Callout / notes ── */
+    .callout {
+      border-left: 3px solid var(--border);
+      background: var(--surface);
+      padding: 12px 16px;
+      border-radius: 0 6px 6px 0;
+      margin-bottom: 10px;
+      font-size: 13px;
+    }
+    .callout.warn {
+      border-left-color: var(--warn);
+      background: var(--warn-bg);
+    }
+    .callout.ok {
+      border-left-color: var(--green);
+      background: var(--green-bg);
+    }
+    .callout strong { color: var(--text); }
+    .callout code {
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 11.5px;
+      background: rgba(0,0,0,0.06);
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+
+    /* ── Notes section ── */
+    .notes-grid {
+      display: grid;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 48px 0;
+    }
+
+    /* ── Footer ── */
+    footer {
+      margin-top: 64px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <h1>Clinical Staffing<br>Optimizer</h1>
+      <p>Bob Prompts</p>
+    </div>
+
+    <div class="sidebar-section">Steps 2 &amp; 3</div>
+    <nav>
+      <a href="#step23">Overview</a>
+      <a href="#prompt-A">A — Loading Data from Planning Analytics</a>
+      <a href="#prompt-31">3.1 — Setup &amp; load data into the notebook</a>
+      <a href="#prompt-32">3.2 — Shared helpers</a>
+      <a href="#prompt-33">3.3 — Baseline 1</a>
+      <a href="#prompt-34">3.4 — Baseline 2</a>
+      <a href="#prompt-35">3.5 — Comparison of Heuristics</a>
+      <a href="#prompt-36">3.6 — MILP model creation</a>
+      <a href="#prompt-37">3.7 — Solve and test</a>
+      <a href="#prompt-38">3.8 — Write back</a>
+      <a href="#prompt-39">3.9 — Verify</a>
+    </nav>
+
+    <div class="sidebar-section">Step 4</div>
+    <nav>
+      <a href="#step4">Overview</a>
+      <a href="#prompt-42">4.2 — Scoring script</a>
+      <a href="#prompt-44">4.4 — Package &amp; upload to watsonx.ai</a>
+      <a href="#prompt-45">4.5 — Deployment</a>
+      <a href="#prompt-46">4.6 — Smoke test</a>
+      <a href="#prompt-47">4.7 — PA verify</a>
+    </nav>
+  </aside>
+
+  <!-- ── Main ── -->
+  <main class="main">
+
+    <div class="page-header">
+      <div class="eyebrow">HR Optimization</div>
+      <h2>Bob Prompt Reference</h2>
+      <p>Copy each prompt into the Bob chat panel, then paste the generated code into the matching notebook cell. Prompts are written from the perspective of a Planning Analytics power user who is <em>not</em> an optimization or deployment expert.</p>
+    </div>
+
+
+    <!-- ════════════════════════════════════════════════════════════
+         STEPS 2 & 3
+    ═════════════════════════════════════════════════════════════ -->
+    <div id="step23" class="section-header">
+      <span class="nb-tag step23">Steps 2 &amp; 3</span>
+      <h3>step2_step3_bob.ipynb</h3>
+    </div>
+    <p class="section-intro">Build the data loader, shared scoring helpers, two hand-crafted baselines, the DOcplex MILP model, and the PA write-back — all from the point of view of someone who knows the cubes but not the optimization math.</p>
+
+    <table class="index-table">
+      <thead><tr><th>#</th><th>Where</th><th>What Bob produces</th></tr></thead>
+      <tbody>
+        <tr><td><a href="#prompt-A">A</a></td><td>Step 2, after MDX helpers</td><td><code>data_loader.py</code> — reads PA, validates, caches to JSON</td></tr>
+        <tr><td><a href="#prompt-31">3.1</a></td><td>Step 3, Cell 1</td><td>Setup + data load (cache first, PA fallback)</td></tr>
+        <tr><td><a href="#prompt-32">3.2</a></td><td>Step 3, Cell 2</td><td>Lookups, <code>compute_objective</code>, <code>compute_cost</code>, <code>check_feasibility</code></td></tr>
+        <tr><td><a href="#prompt-33">3.3</a></td><td>Step 3, Cell 3</td><td>Baseline 1 <code>heuristic_hire_first</code> + <code>print_solution_detail</code></td></tr>
+        <tr><td><a href="#prompt-34">3.4</a></td><td>Step 3, Cell 4</td><td>Baseline 2 <code>heuristic_retention_first</code></td></tr>
+        <tr><td><a href="#prompt-35">3.5</a></td><td>Step 3, Cell 5</td><td>Side-by-side baseline comparison</td></tr>
+        <tr><td><a href="#prompt-36">3.6</a></td><td>Step 3, Cell 6</td><td>DOcplex MILP model</td></tr>
+        <tr><td><a href="#prompt-37">3.7</a></td><td>Step 3, Cell 7</td><td>Solve + plain-language summary</td></tr>
+        <tr><td><a href="#prompt-38">3.8</a></td><td>Step 3, Cell 8</td><td><code>write_via_ti</code>, version check, write-back to PA</td></tr>
+        <tr><td><a href="#prompt-39">3.9</a></td><td>Step 3, Cell 9</td><td>Write-back verification report</td></tr>
+      </tbody>
+    </table>
+
+    <!-- Prompt A -->
+    <div id="prompt-A" class="prompt-card" style="margin-top:28px">
+      <div class="prompt-card-header">
+        <div class="meta">
+          <div class="prompt-id">Prompt A · Step 2</div>
+          <h4>Generate <code>data_loader.py</code></h4>
+          <div class="produces">Produces <code>data_loader.py</code> — reads PA, validates, caches to JSON</div>
+        </div>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-body"><pre>I work with IBM Planning Analytics and I need your help turning some of our cube
+data into Python objects that an optimizer can work with. I don't know much about
+the optimization side — that's your job — but I can tell you exactly what lives
+in our PA server and how it's organized.
+
+Our server is called HR_Optimization. Here's what's in it that's relevant:
+
+Budget Control is where our finance team stores the planning guardrails for the
+year — things like the total workforce budget, the merit raise pool, how much
+extra we pay for night shifts, new hire onboarding costs, and the minimum and
+maximum headcount (in FTE terms) we need staffed on each shift. Everything is
+under a version called Budget.
+
+Merit Allocation is our main employee cube. It has one row per clinical employee
+and tracks their base salary, skill score, how many years they've been with us,
+their attrition risk, and whether they're full-time or part-time (we store that
+as a numeric flag — 1.0 for full-time, 0.5 for part-time). The tricky part is
+that our 12 clinical employees are spread across three org and department
+combinations in the cube: 301-1 through 301-5 are in Org 301 / Dept 10,
+302-1 through 302-5 are in Org 301 / Dept 50, and 403-1 and 403-2 are in
+Org 401 / Dept 10. You'll need to query each group separately and combine them.
+We also store each employee's preferred shift and their display name as string
+attributes on the Employee dimension — those live in a control cube called
+}ElementAttributes_Employee.
+
+Headcount Optimizer is where we plan for new hires. We have six open slots
+(New Hire 1 through New Hire 6), and for each one we've modeled a starting
+salary, an annual all-in loaded cost (benefits and overhead already baked in),
+and an expected skill score. They're all sitting under Org 301 / Dept 20 in the
+Budget version.
+
+Employee Assumption is where our HR team maintains the employer-side benefit
+rates — FICA, Medicare, 401k match, and other benefits — as percentages. You'll
+find them under Version=Budget, Year=Year1, with the Percent measure type. We
+need these to calculate each employee's true annual cost, not just their salary.
+The formula multiplies their base salary by a cost factor that accounts for
+payroll taxes, benefits, and two flat annual stipends of $4,800 each (one for
+medical insurance, one for home office). If any rate is missing from the cube,
+fall back to FICA=24.3%, Medicare=0.3%, 401k=1.3%, other benefits=0.3%.
+There's also a Social Security wage cap of $53,400 that affects how the FICA
+portion is calculated.
+
+What I need you to build is a Python file called data_loader.py with two
+functions:
+
+The first, load_step2_data(run_mdx, cellset_to_df), should pull all of this
+out of PA using those two helper functions I'll pass in, and produce:
+  - a DataFrame of our 12 employees with all their attributes plus the computed
+    cost factor
+  - a DataFrame of the 6 hire slots (new hires are always full-time and start
+    with one year of seniority for modeling purposes)
+  - a dict of the budget constants from Budget Control, with easy-to-use scalar
+    aliases for the optimizer — BUDGET, MERIT_POOL, DELTA (night shift premium),
+    ONBOARD, and the FTE limits for each shift
+  - two additional policy constants that aren't in PA but the optimizer needs:
+    a maximum merit raise of 10% per person, and an onboarding capacity cap of
+    4 new hires at a time
+
+Before saving anything, please run some basic sanity checks — make sure we got
+all 12 employees and all 6 slots, no blanks in the fields the optimizer will
+use, FTE values are only 0.5 or 1.0, skill scores are 1 to 5, and attrition
+risk is between 0 and 1. Print a clear pass/fail for each check and stop with
+an error if anything looks wrong.
+
+Then save everything to a file called step2_data.json so the optimizer can
+reload it later without hitting PA again. Return all the objects and constants
+in a dict.
+
+The second function, load_from_cache(), should just read that JSON file and
+hand back the same DataFrames and constants without needing a PA connection.
+If the file isn't there yet, tell the user they need to run load_step2_data
+first.</pre></div>
+    </div>
+
+    <!-- Prompt 3.1 -->
+    <div id="prompt-31" class="prompt-card">
+      <div class="prompt-card-header">
+        <div class="meta">
+          <div class="prompt-id">Prompt 3.1 · Step 3, Cell 1</div>
+          <h4>Setup and data load</h4>
+          <div class="produces">Produces setup cell — installs DOcplex, loads data, prints confirmation</div>
+        </div>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-body"><pre>I'm starting the optimization half of a clinical staffing project. I already have a
+file called data_loader.py next to this notebook that can pull our staffing data out
+of Planning Analytics and cache it locally.
+
+Please write a setup cell that:
+  - installs the DOcplex optimization library if it isn't already there
+  - loads our staffing data, using the cache if it exists and fetching fresh from
+    Planning Analytics if it doesn't
+  - makes the employee table, the new hire table, and all our budget constants
+    available as notebook variables, using the same names data_loader.py returns
+  - prints a short confirmation of what loaded (how many employees, how many hire
+    slots, and the total budget) so I can tell at a glance that it worked</pre></div>
+    </div>
+
+    <!-- Prompt 3.2 -->
+    <div id="prompt-32" class="prompt-card">
+      <div class="prompt-card-header">
+        <div class="meta">
+          <div class="prompt-id">Prompt 3.2 · Step 3, Cell 2</div>
+          <h4>Shared helpers — lookups, scoring, cost, rule checks</h4>
+          <div class="produces">Produces <code>compute_objective</code>, <code>compute_cost</code>, <code>check_feasibility</code></div>
+        </div>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-body"><pre>I'm building a staffing optimizer for a hospital unit. I know our business rules
+well, but I'm not an optimization expert, so I need your help turning them into code.
+
+My employee and new hire tables and our budget constants are already loaded. A
+staffing plan is three sets of decisions:
+  - which of the open new hire slots we fill
+  - whether each existing employee works Day or Night
+  - what merit raise each existing employee gets, from 0% up to 10%
+
+I want a few reusable tools I can use to evaluate any plan, whether it comes from a
+simple rule of thumb or from the optimizer.
+
+First, quick lookups by employee so I can grab someone's salary, skill, seniority,
+FTE, attrition risk, preferred shift, and cost multiplier. I also need the loaded
+cost and skill score for each new hire slot.
+
+Second, a way to score a plan. I care about three things, weighted by importance:
+  - clinical coverage (weight 1): each person's skill × years of seniority × FTE,
+    including new hires, who count as 1 year of seniority and full-time
+  - retention (weight 8): merit raises that go to people who are likely to leave,
+    scaled by their skill, seniority and FTE
+  - shift satisfaction (weight 0.05): people working the shift they prefer
+Return the total and each of the three pieces.
+
+Third, a way to calculate what a plan costs per year:
+  - Day staff cost salary × cost multiplier × (1 + raise)
+  - Night staff cost the same, but their salary is first increased by the night pay premium
+  - a new hire costs their loaded cost, which already includes everything
+
+Fourth, a rules check that returns pass/fail plus a plain-English list of anything
+violated. The rules are:
+  - everyone works exactly one shift
+  - Day and Night each stay within their minimum and maximum FTE. New hires work Day
+    and count toward Day FTE.
+  - each shift has at least one senior clinician (skill 4 or higher). A new hire with
+    skill 4 or higher counts toward Day.
+  - total cost stays under the budget
+  - total raises (raise % × base salary) stay under the merit pool
+  - no individual raise is above 10%
+  - no more than 4 new hires
+
+Print a confirmation when everything is ready.</pre></div>
+    </div>
+
+    <!-- Prompt 3.3 -->
+    <div id="prompt-33" class="prompt-card">
+      <div class="prompt-card-header">
+        <div class="meta">
+          <div class="prompt-id">Prompt 3.3 · Step 3, Cell 3</div>
+          <h4>Baseline 1 — "hire first"</h4>
+          <div class="produces">Produces <code>heuristic_hire_first</code> + <code>print_solution_detail</code></div>
+        </div>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-body"><pre>Before we use the optimizer, I'd like a simple baseline that works the way a manager
+might staff this unit by hand. That way we can show later how much better the
+optimizer does. Please use the scoring, cost and rules-check tools we already set up
+(compute_objective, compute_cost and check_feasibility).
+
+A plan is made of three dictionaries: which new hires we fill, which shift each
+person works, and what raise each person gets. Since this is the first of two
+baselines, please name them h1, s1 and m1, and call the rules-check results ok1 and
+issues1 and the score obj1. Please don't use plain h, s or m, because I'll need
+those names for the optimizer and don't want it to overwrite this baseline.
+
+For the logic, feel free to use the shortcuts E, N and G for the employee list, the
+hire slot list and the two shifts, along with the lookups we already have.
+
+Write a function called heuristic_hire_first that builds the plan like this. Put
+everyone on the shift they prefer, defaulting to Day if they have no preference. If
+Night is short of its minimum coverage, move our least-skilled Day people over until
+it's covered, but never move the last senior clinician off Day. If Night still has
+no senior clinician, move over the best-qualified person who prefers Night, as long
+as Day keeps its minimum coverage and another senior. Give everyone the same raise
+by spreading the merit pool evenly across total salaries, never above 10%. Then fill
+new hire slots starting with the highest skill, and stop when we'd break the total
+budget, the 4-hire cap or the Day shift's maximum coverage.
+
+Please also write a helper called print_solution_detail that takes a title and the
+three dictionaries and shows any plan clearly: the score and its three parts, cost
+and merit spend against their limits, a table of employees (name, shift, skill, FTE,
+risk, raise, and whether they got their preferred shift), the Day and Night totals,
+which new hires were filled, and whether the plan passes the rules. I'll reuse it
+for the other plans.
+
+Then run it, show the detail, and tell me whether the plan is feasible.</pre></div>
+    </div>
+
+    <!-- Prompt 3.4 -->
+    <div id="prompt-34" class="prompt-card">
+      <div class="prompt-card-header">
+        <div class="meta">
+          <div class="prompt-id">Prompt 3.4 · Step 3, Cell 4</div>
+          <h4>Baseline 2 — "retention first"</h4>
+          <div class="produces">Produces <code>heuristic_retention_first</code></div>
+        </div>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-body"><pre>Now I'd like a second baseline with the opposite philosophy from the first. Please
+use the same tools as before (compute_objective, compute_cost, check_feasibility and
+print_solution_detail), plus the E, N and G shortcuts and the existing lookups.
+
+This one is baseline 2, so please name its plan h2, s2 and m2, its rules-check
+results ok2 and issues2, and its score obj2. Again, avoid plain h, s and m, since
+those are reserved for the optimizer.
+
+Write a function called heuristic_retention_first. The idea is to protect our
+existing staff and spend nothing on new hires, so it fills no hire slots. Start with
+everyone on Day, then move our most junior senior clinician (skill 4 or higher) to
+Night so Night has a senior person. If Night is still below its minimum coverage,
+move Night-preferring people over until it's covered, and if that's still not enough,
+move whoever has the lowest attrition risk. For raises, start with the person most
+likely to leave and give them as much as the pool allows, up to 10%, then work down
+the list until the pool runs out. Low-risk people may get nothing.
+
+Then run it, show the detail with print_solution_detail, and tell me whether the
+plan is feasible.</pre></div>
+    </div>
+
+    <!-- Prompt 3.5 -->
+    <div id="prompt-35" class="prompt-card">
+      <div class="prompt-card-header">
+        <div class="meta">
+          <div class="prompt-id">Prompt 3.5 · Step 3, Cell 5</div>
+          <h4>Side-by-side baseline comparison</h4>
+          <div class="produces">Produces comparison table with placeholder column for optimizer result</div>
+        </div>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-body"><pre>I have two baseline staffing plans and I'd like to put them side by side so I can
+show my team why we need an optimizer. Both plans are already built. The first
+("hire first") lives in h1, s1 and m1, with its rules-check results in ok1 and
+issues1 and its score in obj1. The second ("retention first") lives in h2, s2 and m2,
+with ok2, issues2 and obj2. Please use those exact names and don't rebuild or rename
+anything. The scores have the usual four parts: total, capability, retention and
+preference. For anything else, use the tools and lookups we already have, like
+compute_cost, base, skill, risk, fte, E and N.
+
+First, stop with a clear message if either plan breaks a rule, and show what it
+broke. Otherwise, build a comparison table with a column for each plan and an empty
+column labeled "optimizer result (after solve)" that I'll fill in later. I'd like to
+see whether each plan is feasible, the total score and its three parts, total cost
+and budget left over, merit pool used, how many new hires each makes, and the Day and
+Night FTE (new hires count toward Day). I'd also like to see how many employees
+ended up on a different shift between the two plans, and the average raise for
+high-risk employees (risk above 0.5) versus low-risk employees (risk below 0.3).
+
+Add a short note beside the rows where the plans differ most, and finish with the
+score gap between the two plans. Two very different plans that are both feasible
+shows the problem is worth optimizing.</pre></div>
+    </div>
+
+    <!-- Prompt 3.6 -->
+    <div id="prompt-36" class="prompt-card">
+      <div class="prompt-card-header">
+        <div class="meta">
+          <div class="prompt-id">Prompt 3.6 · Step 3, Cell 6</div>
+          <h4>Build the DOcplex MILP model</h4>
+          <div class="produces">Produces the full DOcplex model with binary + continuous variables and all constraints</div>
+        </div>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-body"><pre>Now I want to build the real optimizer using IBM's DOcplex library. I understand the
+business rules but not the math behind the solver, so please handle the technical
+details, and explain in a code comment anything non-obvious you had to do.
+
+The optimizer decides three things:
+  - which new hire slots to fill (yes or no for each)
+  - Day or Night for each existing employee
+  - a merit raise from 0% to 10% for each existing employee
+
+It should maximize the same three-part score as before (coverage, retention,
+satisfaction) with the same weights, and obey the same rules our rules check enforces.
+New hires only work Day. The Day FTE limits include them, and a new hire with skill 4
+or higher can be the senior on Day.
+
+One thing to watch: a night worker's raise costs more than a day worker's, because the
+night premium applies to the raised pay as well. Solvers need straight-line math, so
+please work out the standard way to handle a cost that depends on both shift and raise
+size. The cost the model calculates should agree with our compute_cost function.
+
+When the model is built, print how many yes/no decisions, how many continuous decisions,
+and how many rules it has.</pre></div>
+    </div>
+
+    <!-- Prompt 3.7 -->
+    <div id="prompt-37" class="prompt-card">
+      <div class="prompt-card-header">
+        <div class="meta">
+          <div class="prompt-id">Prompt 3.7 · Step 3, Cell 7</div>
+          <h4>Solve and summarize</h4>
+          <div class="produces">Produces solve call, solution extraction, summary table, and baseline comparison</div>
+        </div>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-body"><pre>Please run the optimizer model we just built and show me the answer in plain language.
+
+Time the solve and make sure we get a real solution. If we don't, print the solver
+status and stop with a clear error.
+
+Pull the decisions out into the same plan format our baselines use, then run the plan
+through our cost, scoring, and rules-check tools, so we're confirming the optimizer's
+answer with the same yardstick as the baselines.
+
+Print a summary with:
+  - solve status and time
+  - total score, with its three pieces
+  - total cost against the budget, and merit pool used against its cap
+  - number of new hires and the Day/Night FTE against their limits
+  - whether the plan passes every rule
+
+Then show a table of each existing employee with their name, assigned shift, merit
+raise %, attrition risk, skill, seniority, and annual cost. List each new hire slot as
+hired or skipped, with its cost and skill.
+
+Finish by showing how much better the optimizer scored than each baseline plan.</pre></div>
+    </div>
+
+    <!-- Prompt 3.8 -->
+    <div id="prompt-38" class="prompt-card">
+      <div class="prompt-card-header">
+        <div class="meta">
+          <div class="prompt-id">Prompt 3.8 · Step 3, Cell 8</div>
+          <h4>Write results back to Planning Analytics</h4>
+          <div class="produces">Produces <code>write_via_ti</code> helper + version check + all four cube writes</div>
+        </div>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-body"><pre>The optimizer has finished, and I'd like its answers saved back into Planning
+Analytics so planners can see them in their dashboards. They should go into the
+version named in my TARGET_VERSION variable, not any of our existing versions.
+
+I don't have a writing helper yet, so please write one first. Planning Analytics
+won't let us write cell values straight from Python, so the approach we use is a
+temporary TI process. The helper, called write_via_ti, takes a process name and the
+CellPutN lines. It should create the process through the TM1 REST API, run it, and
+delete it afterwards so we don't leave clutter behind. If creating or running it
+fails, stop with a clear error, and print a short confirmation when it works. My
+connection details are already set up in TM1_REST_BASE, PA_AUTH, PA_HEADERS and
+PA_SESSION.
+
+Before writing anything, please also make sure TARGET_VERSION exists as a member of
+the Version dimension, and add it if it doesn't. I picked that name myself, so it may
+not be there yet, and writes to a missing version will fail. Please make this its own
+small function that prints whether the version "already existed" or was "created",
+because I'll want to reuse it later.
+
+The optimizer's results are in variables with these names: h_sol, s_sol and m_sol
+for the hire, shift and raise decisions, band_assigned for each person's final shift,
+total_cost, merit_spend and solve_time for the summary numbers, and sol for the
+solver result (sol.objective_value is the score). The usual lookups, E, N, BUDGET
+and DELTA are still in scope too.
+
+We save into four cubes, all using the usual Version, Organization and Department
+dimensions.
+
+Schedule Assignment gets one entry for each of the 12 employees, in the Day or Night
+column matching their shift: a 0 or 1 band flag, their FTE, their effective salary
+including the night premium if it applies, their annual all-in cost with the raise,
+their capability score, and whether they got their preferred shift. Use the process
+name _cplex_sched_assign_tmp.
+
+Merit Allocation gets each employee's raise percentage and the dollar amount, using
+_cplex_merit_alloc_tmp.
+
+Headcount Optimizer gets, for each of the six hire slots, whether it was filled, the
+FTE that adds and its capability contribution. These all sit in Org 301 / Dept 20.
+Use _cplex_hc_opt_tmp.
+
+Budget Control gets the overall summary: total cost, merit used, budget remaining,
+the score, the solve status and the solve time in seconds, using
+_cplex_budget_ctrl_tmp.
+
+Employees map to org and department like this: 301-1 to 301-5 are in 301 / 10,
+302-1 to 302-5 are in 301 / 50, and 403-1 and 403-2 are in 401 / 10.</pre></div>
+    </div>
+
+    <!-- Prompt 3.9 -->
+    <div id="prompt-39" class="prompt-card">
+      <div class="prompt-card-header">
+        <div class="meta">
+          <div class="prompt-id">Prompt 3.9 · Step 3, Cell 9</div>
+          <h4>Verify the write-back</h4>
+          <div class="produces">Produces verification report reading back all four cubes from PA</div>
+        </div>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-body"><pre>I've just saved the optimizer's results into Planning Analytics, and I'd like to read
+them back to make sure they landed properly. I have a helper called run_mdx that runs
+a query and returns the result. Everything was saved under the version named in my
+TARGET_VERSION variable, so please use that name throughout rather than a hard-coded
+one.
+
+Before you read anything back, please check that TARGET_VERSION actually exists in
+the Version dimension, using the small version-check function from the write-back
+step. I chose that name myself, so if it was never added as a member, then the writes
+would have failed and the reads would just come back empty, which could look like a
+mysterious bug. If the version is missing, add it, tell me you did, and stop with a
+message that the write-back needs to be run again.
+
+Then print a verification report covering the four cubes. For Budget Control, show
+total cost, merit used, budget remaining, the score and the solve time, and stop with
+an error if the cost is missing. For Schedule Assignment, show each employee's shift
+and FTE. Both Day and Night are stored for every employee, so show which one holds
+the value. For Merit Allocation, show each employee's raise percentage and dollar
+amount. Our 12 employees sit in three groups, so query each one and combine them:
+301-1 to 301-5 in Org 301 / Dept 10, 302-1 to 302-5 in Org 301 / Dept 50, and 403-1
+and 403-2 in Org 401 / Dept 10. For Headcount Optimizer, show whether each of the six
+hire slots is activated or skipped. These are in Org 301 / Dept 20.
+
+Finish with a line confirming the results are live in PA.</pre></div>
+    </div>
+
+    <!-- Notes 2&3 -->
+    <hr class="divider" />
+
+
+    <!-- ════════════════════════════════════════════════════════════
+         STEP 4
+    ═════════════════════════════════════════════════════════════ -->
+    <div id="step4" class="section-header">
+      <span class="nb-tag step4">Step 4</span>
+      <h3>step_4_bob.ipynb</h3>
+    </div>
+    <p class="section-intro">Package and deploy the optimizer as a watsonx.ai DO batch endpoint — from the point of view of someone who has never set up a deployment before and doesn't know the packaging infrastructure involved.</p>
+
+    <table class="index-table">
+      <thead><tr><th>#</th><th>Cell</th><th>What Bob produces</th></tr></thead>
+      <tbody>
+        <tr><td><a href="#prompt-42">4.2</a></td><td>Cell 2</td><td><code>score_clinical_optimizer.py</code> — self-contained script for the DO batch job</td></tr>
+        <tr><td><a href="#prompt-44">4.4</a></td><td>Cell 4</td><td>Packages script into <code>.tar.gz</code> and uploads as a model asset</td></tr>
+        <tr><td><a href="#prompt-45">4.5</a></td><td>Cell 5</td><td>Creates the batch deployment endpoint</td></tr>
+        <tr><td><a href="#prompt-46">4.6</a></td><td>Cell 6</td><td>Submits test job, polls until done, displays four output CSVs</td></tr>
+        <tr><td><a href="#prompt-47">4.7</a></td><td>Cell 7</td><td>Reads back all four PA cubes to confirm the endpoint wrote correctly</td></tr>
+      </tbody>
+    </table>
+
+    <!-- Prompt 4.2 -->
+    <div id="prompt-42" class="prompt-card" style="margin-top:28px">
+      <div class="prompt-card-header">
+        <div class="meta">
+          <div class="prompt-id">Prompt 4.2 · Cell 2</div>
+          <h4>Turn the optimizer into a standalone script</h4>
+          <div class="produces">Produces <code>score_clinical_optimizer.py</code> — fully self-contained DO batch script</div>
+        </div>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-body"><pre>I've built a clinical staffing optimizer that runs in a Jupyter notebook — it reads
+data from Planning Analytics, solves the problem with CPLEX, and writes the results
+back to PA. Now I want to take that same logic and package it so it can run
+automatically as a scheduled batch job in watsonx.ai, without anyone having to open
+the notebook.
+
+I'm told the batch job framework expects a single self-contained Python script. It
+can't import things from the notebook — everything has to live inside the one file.
+I don't really know how that framework works, so please handle those details.
+
+Here's what the script needs to do, in order:
+
+First, it receives one input — the name of the Planning Analytics version to write
+results into. That comes in as a tiny one-row CSV called params.csv with a column
+called target_version.
+
+Second, it connects to Planning Analytics and pulls the three data sources we always
+use: the budget limits from Budget Control, the employee data from Merit Allocation,
+and the open hire slots from Headcount Optimizer. The script will be running inside
+watsonx.ai and won't have access to any .env file, so please hardcode the PA
+credentials directly in the script using the values already defined in this notebook
+(PA_BASE_URL, PA_TENANT_ID, PA_API_KEY, TM1_DATABASE).
+
+Third, it runs the CPLEX optimizer to find the best shift assignments, merit raises,
+and new hire decisions within our budget.
+
+Fourth, it writes the results back to PA under the target version across our four
+cubes. A few things to get right here that have caused issues before:
+
+  - When writing to Schedule Assignment with CellPutN, the coordinate list must
+    include Organization and Department — the cube has those dimensions and writes
+    will silently fail without them. Each employee maps to their org/dept like this:
+    301-1 to 301-5 → Org 301 / Dept 10
+    302-1 to 302-5 → Org 301 / Dept 50
+    403-1 and 403-2 → Org 401 / Dept 10
+
+  - The shift dimension in Schedule Assignment is called 'Schedule Band', not 'Band'.
+    The two members are 'Day' and 'Night'. Using the wrong dimension name will cause
+    the write to fail.
+
+  - When reading Schedule Assignment back for verification, the MDX WHERE clause must
+    also filter on Organization and Department — without those filters the cellset
+    comes back empty. Query the three org/dept groups separately (same pattern as
+    Merit Allocation) and concatenate.
+
+Fifth, it produces four output CSV files that the batch framework will hand back
+to whoever called the job:
+  - results.csv: the top-line summary (solve status, total cost, objective score,
+    how many hires, merit spent, Day FTE, Night FTE, solve time in seconds)
+  - band_assignments.csv: each employee's assigned shift and their Day/Night FTE
+  - merit_awards.csv: each employee's raise percentage and dollar amount
+  - activated_hires.csv: which of the six hire slots were turned on
+
+Please name the file score_clinical_optimizer.py.</pre></div>
+    </div>
+
+    <!-- Prompt 4.4 -->
+    <div id="prompt-44" class="prompt-card">
+      <div class="prompt-card-header">
+        <div class="meta">
+          <div class="prompt-id">Prompt 4.4 · Cell 4</div>
+          <h4>Package the script and register it in watsonx.ai</h4>
+          <div class="produces">Produces notebook cell — bundles script into <code>.tar.gz</code> and uploads as DO model asset</div>
+        </div>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-body"><pre>My scoring script is ready at score_clinical_optimizer.py. Now I need to get it into
+watsonx.ai so it can be deployed. I've been told the platform needs it packaged as a
+compressed archive file with the script named main.py inside — apparently that's the
+entry point name the runtime looks for.
+
+wx_client and SOFTWARE_SPEC_ID are already set up from the previous cell.
+
+Please write Python code I can paste directly into a notebook cell that:
+1. Creates a compressed archive called clinical_optimizer.tar.gz with the script
+   inside as main.py.
+2. Prints what's in the archive and its size so I can confirm it looks right before
+   uploading.
+3. Checks if a model called 'clinical-staffing-optimizer' already exists in the
+   watsonx.ai repository and removes it if so — I want a clean slate each time I
+   re-run this.
+4. Uploads the archive as a Decision Optimization model asset (type: do-docplex_22.1)
+   using the custom software spec from SOFTWARE_SPEC_ID. The input to the job is a
+   field called target_version, and the outputs are status, total_cost,
+   objective_score, hires_activated, merit_spent, day_fte, night_fte, and
+   solve_time_seconds.
+5. Prints the MODEL_ASSET_ID at the end — I'll need it to create the deployment.</pre></div>
+    </div>
+
+    <!-- Prompt 4.5 -->
+    <div id="prompt-45" class="prompt-card">
+      <div class="prompt-card-header">
+        <div class="meta">
+          <div class="prompt-id">Prompt 4.5 · Cell 5</div>
+          <h4>Create the live batch deployment endpoint</h4>
+          <div class="produces">Produces notebook cell — creates and waits for a watsonx.ai batch deployment</div>
+        </div>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-body"><pre>The model asset is registered. Now I need to actually turn it into a live endpoint
+that can be triggered on demand.
+
+I know the optimizer should be deployed as a "batch" deployment rather than an
+"online" one because it takes time to run — you submit a request, it works in the
+background, and you collect the results when it's done. I'm not sure what the
+difference looks like in code, so please handle that.
+
+MODEL_ASSET_ID and wx_client are already defined.
+
+Please write Python code I can paste directly into a notebook cell that:
+1. Checks if a deployment named 'clinical-staffing-optimizer-endpoint' already
+   exists and deletes it — I want this cell to be safe to re-run after any changes.
+2. Creates a new batch deployment pointing at MODEL_ASSET_ID. The smallest hardware
+   size is fine (one node).
+3. Waits for the deployment to finish initialising and become ready.
+4. Prints the DEPLOYMENT_ID at the end — I'll need it to submit test jobs.</pre></div>
+    </div>
+
+    <!-- Prompt 4.6 -->
+    <div id="prompt-46" class="prompt-card">
+      <div class="prompt-card-header">
+        <div class="meta">
+          <div class="prompt-id">Prompt 4.6 · Cell 6</div>
+          <h4>Run a test job and check the output</h4>
+          <div class="produces">Produces notebook cell — submits job, polls status, displays all four output DataFrames</div>
+        </div>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-body"><pre>The deployment is up. Now I want to fire a real test job at it and make sure the
+whole thing works end-to-end — optimizer runs, writes back to PA, and hands back
+the result files.
+
+DEPLOYMENT_ID, wx_client, and TARGET_VERSION are already defined from earlier cells.
+
+Please write Python code I can paste directly into a notebook cell that:
+1. Submits a job to the endpoint, telling it to write results into TARGET_VERSION
+   in Planning Analytics. The job should request all four output files back:
+   results.csv, band_assignments.csv, merit_awards.csv, and activated_hires.csv.
+2. Waits for the job to finish. I understand it runs asynchronously so we need to
+   keep checking its status until it either completes or fails — please print the
+   status each time we check so I can see it making progress.
+3. Once it's done, reconstruct and display all four output DataFrames. The DO job
+   returns each output table as a dict with a 'fields' key (column names) and a
+   'values' key (rows of data), so use pd.DataFrame(item['values'],
+   columns=item['fields']) to build each DataFrame — don't try to join the values
+   as strings.
+     - results.csv: the overall solve summary
+     - band_assignments.csv: which employees went to Day vs Night
+     - merit_awards.csv: each employee's raise
+     - activated_hires.csv: which new hire slots were turned on
+4. Fail with a clear error if the solve status isn't 'optimal'.</pre></div>
+    </div>
+
+    <!-- Prompt 4.7 -->
+    <div id="prompt-47" class="prompt-card">
+      <div class="prompt-card-header">
+        <div class="meta">
+          <div class="prompt-id">Prompt 4.7 · Cell 7</div>
+          <h4>Go back into PA and verify the data actually landed</h4>
+          <div class="produces">Produces notebook cell — reconnects to PA and reads back all four cubes</div>
+        </div>
+        <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      </div>
+      <div class="prompt-body"><pre>The test job says it completed successfully. But I want to go directly into Planning
+Analytics and read the data back myself — I don't want to just trust the job output
+files, I want to confirm the actual PA cubes have the right numbers in them.
+
+PA_BASE_URL, PA_TENANT_ID, PA_API_KEY, TM1_DATABASE, and TARGET_VERSION are all
+already defined from Cell 1.
+
+Please write Python code I can paste directly into a notebook cell that reconnects
+to Planning Analytics and reads back the results from all four cubes under
+TARGET_VERSION:
+
+1. Budget Control — show the overall summary: total cost, merit used, budget
+   remaining, objective score, and how long the solve took.
+
+2. Schedule Assignment — for each of our 12 employees, show which shift they ended
+   up on and their FTE contribution. The Schedule Assignment cube has Organization
+   and Department dimensions, so the MDX WHERE clause must filter on those — without
+   them the cellset comes back empty. Query the three org/dept groups separately
+   (same pattern as Merit Allocation below) and concatenate the results.
+
+3. Merit Allocation — show each employee's raise percentage and dollar amount. Our
+   employees are spread across three org/department groups, so query each one
+   separately and combine:
+     301-1 to 301-5 → Org 301 / Dept 10
+     302-1 to 302-5 → Org 301 / Dept 50
+     403-1 and 403-2 → Org 401 / Dept 10
+
+4. Headcount Optimizer — for each of the 6 hire slots, show whether it was
+   activated or skipped. These all live under Org 301 / Dept 20.
+
+At the end, assert that the Budget Control data isn't empty. If it is, the endpoint
+didn't actually write anything to PA and we need to investigate.</pre></div>
+    </div>
+
+    <!-- Notes step 4 -->
+    <footer>
+      <p>Made with IBM Bob</p>
+    </footer>
+
+  </main>
+</div>
+
+<script>
+  function copyPrompt(btn) {
+    const pre = btn.closest('.prompt-card').querySelector('pre');
+    navigator.clipboard.writeText(pre.innerText).then(() => {
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'Copy';
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+
+  // Highlight active sidebar link on scroll
+  const sections = document.querySelectorAll('[id]');
+  const links = document.querySelectorAll('.sidebar nav a');
+
+  function onScroll() {
+    let current = '';
+    sections.forEach(s => {
+      if (window.scrollY >= s.offsetTop - 80) current = s.id;
+    });
+    links.forEach(a => {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+    });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+</script>
+
+</body>
+</html>
