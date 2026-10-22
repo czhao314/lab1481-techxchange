@@ -429,6 +429,8 @@
     <div class="sidebar-section collapsed">Data Exploration and Clinical Staffing Optimizer Build</div>
     <nav>
       <a href="#step23">Overview</a>
+      <a href="#explore-data">Notebook Step 1 — Understanding your data</a>
+      <a href="#build-optimization">Notebook Step 2 — Building the optimization</a>
       <a href="#prompt-A">A — Loading Data from Planning Analytics</a>
       <a href="#prompt-31">3.1 — Setup &amp; load data into the notebook</a>
       <a href="#prompt-32">3.2 — Shared helpers</a>
@@ -444,6 +446,7 @@
     <div class="sidebar-section collapsed">Deploy Clinical Endpoint</div>
     <nav>
       <a href="#step4">Overview</a>
+      <a href="#deploy-test">Notebook Step 1 — Deploying &amp; testing</a>
       <a href="#prompt-42">4.1 — Scoring script</a>
       <a href="#prompt-44">4.2 — Package &amp; upload to watsonx.ai</a>
       <a href="#prompt-45">4.3 — Deployment</a>
@@ -506,6 +509,38 @@
       <h3>step_123_bob.ipynb</h3>
     </div>
     <p class="section-intro">Build the data loader, shared scoring helpers, two hand-crafted baselines, the DOcplex MILP model, and the PA write-back — all from the point of view of someone who knows the cubes but not the optimization math.</p>
+
+    <h4 id="explore-data" class="setup-sub">Notebook Step 1: Understanding your data</h4>
+    <ol class="setup-steps">
+      <li>In Bob, where you have imported your folder, go ahead and open the notebook named <code>step_123_bob.ipynb</code>.</li>
+      <li>The credentials for connecting to Planning Analytics and watsonx.ai will already be populated in the notebook.</li>
+      <li>In the corner of the notebook, select a Kernel. This Kernel will be the Python virtual environment you created above.
+        <figure class="setup-fig"><img src="images/step-kernel-select.png" alt="Notebook kernel picker with the .venv Python kernel selected"></figure>
+      </li>
+      <li>Fill in the credentials, and then run through the first few cells in the notebook by pressing the play button next to each cell. By running through this notebook, you will ensure that the connections with the credentials work, and explore the data that lives within the Planning Analytics database.</li>
+    </ol>
+
+    <h4 id="build-optimization" class="setup-sub">Notebook Step 2: Building out your Optimization problem using Bob, watsonx.ai, and IBM CPLEX</h4>
+    <ol class="setup-steps">
+      <li>Once you&rsquo;ve finished running the first 3 cells in the notebook, you can begin working with Bob to build out a staffing and budget optimization problem. The Bob prompts you will follow live below. Using the prompts, Bob will write out code that:
+        <ol type="a" style="margin:8px 0 0 20px">
+          <li>Loads data from Planning Analytics.</li>
+          <li>Tests the feasibility of your business problem.</li>
+          <li>Determines what will be your constraints and constants in the problem.</li>
+          <li>Writes a baseline heuristic that you can use to compare against the optimization solve.</li>
+        </ol>
+      </li>
+      <li>In the notebook, you&rsquo;ll need to set the <code>TARGET_VERSION</code> (this is in the very first cell of the notebook). This is a specific target space where your optimization results will be stored. This should be your <code>firstnamelastname</code> (for example: <code>'target_version': 'christinazhao'</code>).
+        <figure class="setup-fig"><img src="images/step-target-version-1.png" alt="Notebook Cell 1 with TARGET_VERSION set to a placeholder to be replaced with your name"></figure>
+      </li>
+      <li>Run through the Bob prompts and fill in the cells. Bob will give you the code, but not edit your notebook. Each time you get code output from Bob, make a new &lsquo;code&rsquo; cell in the notebook by either:
+        <ol type="a" style="margin:8px 0 8px 20px">
+          <li>Hovering under the output of the latest cell you&rsquo;ve run and selecting the &ldquo;+ Code&rdquo; button.</li>
+          <li>Using the &ldquo;+ Code&rdquo; button on the top left of the notebook.</li>
+        </ol>
+        Then paste the code and run the cell by clicking the play button next to the cell.
+      </li>
+    </ol>
 
     <table class="index-table">
       <thead><tr><th>#</th><th>Where</th><th>What Bob produces</th></tr></thead>
@@ -966,6 +1001,16 @@ Finish with a line confirming the results are live in PA.</pre></div>
       <h3>step_4_bob.ipynb</h3>
     </div>
     <p class="section-intro">Package and deploy the optimizer as a watsonx.ai DO batch endpoint — from the point of view of someone who has never set up a deployment before and doesn't know the packaging infrastructure involved.</p>
+
+    <h4 id="deploy-test" class="setup-sub">Notebook Step 1: Deploying and testing out your solution</h4>
+    <ol class="setup-steps">
+      <li>Go back to your Bob window. Open up the notebook named <code>step_4_bob.ipynb</code>.</li>
+      <li>In the notebook, like the last, you&rsquo;ll need to set the <code>TARGET_VERSION</code>. This is a specific target space where your optimization results will be stored. This should be your <code>firstnamelastname</code> (for example: <code>'target_version': 'christinazhao'</code>).
+        <figure class="setup-fig"><img src="images/step-target-version-2.png" alt="Notebook Cell 1 with TARGET_VERSION set to a placeholder to be replaced with your name"></figure>
+      </li>
+      <li>Similar to the first notebook, the Bob prompts you will follow live below to help you build out the deployment of the DO solution you created and tested out in the first notebook.</li>
+      <li>Follow the prompts and fill in the code blocks, then run through the cells to successfully deploy your solution to the watsonx.ai deployment space, run a test job to ensure that the deployment works, and check that your optimized data is written back to Planning Analytics.</li>
+    </ol>
 
     <table class="index-table">
       <thead><tr><th>#</th><th>Cell</th><th>What Bob produces</th></tr></thead>
