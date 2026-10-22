@@ -74,7 +74,56 @@
       text-transform: uppercase;
       color: var(--muted);
       margin-top: 10px;
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
     }
+    .sidebar-section:hover { color: var(--text); }
+    .sidebar-section::after {
+      content: "";
+      flex-shrink: 0;
+      width: 6px;
+      height: 6px;
+      border-right: 2px solid currentColor;
+      border-bottom: 2px solid currentColor;
+      transform: rotate(45deg);
+      transition: transform 0.15s;
+    }
+    .sidebar-section.collapsed::after { transform: rotate(-45deg); }
+    .sidebar-section.collapsed + nav { display: none; }
+
+    /* ── Sidebar collapse toggle ── */
+    .sidebar { transition: width 0.2s, padding 0.2s; }
+    .layout.sidebar-hidden .sidebar {
+      width: 0;
+      padding: 0;
+      border-right: none;
+      overflow: hidden;
+    }
+    .sidebar-toggle {
+      position: fixed;
+      top: 12px;
+      left: 200px;
+      z-index: 10;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1;
+      cursor: pointer;
+      transition: left 0.2s, color 0.15s;
+    }
+    .sidebar-toggle:hover { color: var(--text); background: var(--surface); }
+    .layout.sidebar-hidden .sidebar-toggle { left: 12px; }
 
     .sidebar nav a {
       display: block;
@@ -334,6 +383,7 @@
 <body>
 
 <div class="layout">
+  <button class="sidebar-toggle" type="button" aria-label="Hide sidebar" aria-expanded="true">&#8249;</button>
 
   <!-- ── Sidebar ── -->
   <aside class="sidebar">
@@ -342,7 +392,7 @@
       <p>Bob Prompts</p>
     </div>
 
-    <div class="sidebar-section">Data Exploration and Clinical Staffing Optimizer Build</div>
+    <div class="sidebar-section collapsed">Data Exploration and Clinical Staffing Optimizer Build</div>
     <nav>
       <a href="#step23">Overview</a>
       <a href="#prompt-A">A — Loading Data from Planning Analytics</a>
@@ -357,7 +407,7 @@
       <a href="#prompt-39">3.9 — Verify</a>
     </nav>
 
-    <div class="sidebar-section">Deploy Clinical Endpoint</div>
+    <div class="sidebar-section collapsed">Deploy Clinical Endpoint</div>
     <nav>
       <a href="#step4">Overview</a>
       <a href="#prompt-42">4.2 — Scoring script</a>
@@ -1085,6 +1135,31 @@ didn't actually write anything to PA and we need to investigate.</pre></div>
       }, 2000);
     });
   }
+
+  // Collapse/expand sidebar section groups
+  document.querySelectorAll('.sidebar-section').forEach(h => {
+    h.setAttribute('role', 'button');
+    h.setAttribute('tabindex', '0');
+    h.setAttribute('aria-expanded', String(!h.classList.contains('collapsed')));
+    const toggle = () => {
+      const collapsed = h.classList.toggle('collapsed');
+      h.setAttribute('aria-expanded', String(!collapsed));
+    };
+    h.addEventListener('click', toggle);
+    h.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+    });
+  });
+
+  // Collapse/expand the whole sidebar
+  const layout = document.querySelector('.layout');
+  const sidebarToggle = document.querySelector('.sidebar-toggle');
+  sidebarToggle.addEventListener('click', () => {
+    const hidden = layout.classList.toggle('sidebar-hidden');
+    sidebarToggle.textContent = hidden ? '\u203A' : '\u2039';
+    sidebarToggle.setAttribute('aria-label', hidden ? 'Show sidebar' : 'Hide sidebar');
+    sidebarToggle.setAttribute('aria-expanded', String(!hidden));
+  });
 
   // Highlight active sidebar link on scroll
   const sections = document.querySelectorAll('[id]');
