@@ -211,6 +211,33 @@
     }
     .nb-tag.step23 { background: var(--tag-step2-bg); color: var(--tag-step2); }
     .nb-tag.step4  { background: var(--tag-step4-bg); color: var(--tag-step4); }
+    .nb-tag.setup  { background: var(--green-bg); color: var(--green); }
+
+    /* ── Setup steps ── */
+    .setup-sub {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      margin: 28px 0 10px;
+    }
+    .setup-steps { margin: 0 0 16px 20px; }
+    .setup-steps > li { margin-bottom: 18px; padding-left: 4px; }
+    .setup-steps a { color: var(--accent); }
+    .setup-steps code {
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 11.5px;
+      background: rgba(0,0,0,0.06);
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+    .setup-fig { margin: 12px 0 0; }
+    .setup-fig img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+    }
 
     /* ── Index table ── */
     .index-table {
@@ -392,6 +419,13 @@
       <p>Bob Prompts</p>
     </div>
 
+    <div class="sidebar-section collapsed">Notebook Setup</div>
+    <nav>
+      <a href="#setup">Overview</a>
+      <a href="#setup-files">Access Lab Files</a>
+      <a href="#setup-bob">Setting up Bob</a>
+    </nav>
+
     <div class="sidebar-section collapsed">Data Exploration and Clinical Staffing Optimizer Build</div>
     <nav>
       <a href="#step23">Overview</a>
@@ -410,11 +444,11 @@
     <div class="sidebar-section collapsed">Deploy Clinical Endpoint</div>
     <nav>
       <a href="#step4">Overview</a>
-      <a href="#prompt-42">4.2 — Scoring script</a>
-      <a href="#prompt-44">4.4 — Package &amp; upload to watsonx.ai</a>
-      <a href="#prompt-45">4.5 — Deployment</a>
-      <a href="#prompt-46">4.6 — Smoke test</a>
-      <a href="#prompt-47">4.7 — PA verify</a>
+      <a href="#prompt-42">4.1 — Scoring script</a>
+      <a href="#prompt-44">4.2 — Package &amp; upload to watsonx.ai</a>
+      <a href="#prompt-45">4.3 — Deployment</a>
+      <a href="#prompt-46">4.4 — Smoke test</a>
+      <a href="#prompt-47">4.5 — PA verify</a>
     </nav>
   </aside>
 
@@ -427,6 +461,42 @@
       <p>Copy each prompt into the Bob chat panel, then paste the generated code into the matching notebook cell. Prompts are written from the perspective of a Planning Analytics power user who is <em>not</em> an optimization or deployment expert.</p>
     </div>
 
+
+    <!-- ════════════════════════════════════════════════════════════
+         NOTEBOOK SETUP
+    ═════════════════════════════════════════════════════════════ -->
+    <div id="setup" class="section-header">
+      <span class="nb-tag setup">Notebook Setup</span>
+      <h3>Lab Set Up</h3>
+    </div>
+    <p class="section-intro">This lab set up assumes that you have been able to log into IBM Cloud and Planning Analytics, and that Bob is accessible on the machine that you are running the lab on.</p>
+
+    <h4 id="setup-files" class="setup-sub">Access Lab Files</h4>
+    <ol class="setup-steps">
+      <li>Files are here in this <a href="https://ibm.box.com/s/4mvs2tow16tett2wzaej39mno0h9rsz0" target="_blank" rel="noopener">Box folder</a>. Use the password <code>ibmlab1481</code> to enter. Download the <code>txc-bob-pa-do</code> zip file in the folder by clicking the checkmark next to the file, then the download button at the top right of the page.</li>
+      <li>Open the zip file.</li>
+    </ol>
+
+    <h4 id="setup-bob" class="setup-sub">Setting up Bob</h4>
+    <ol class="setup-steps">
+      <li>Open up your Bob window. In the top left corner, select the file icon, and then select &ldquo;Open Folder&rdquo;. Select the folder that you downloaded. Bob will now be able to access the files within the folder and work on them.
+        <figure class="setup-fig"><img src="images/setup-open-folder.png" alt="Bob Explorer panel with the file icon (1) and Open Folder button (2) highlighted"></figure>
+        <div class="callout warn" style="margin-top:14px">
+          <strong>Note:</strong> sometimes when you open a folder in Bob, it starts out in &ldquo;Restricted Mode&rdquo;. There will usually be a popup that asks if you want to trust the folder. Select &ldquo;Manage&rdquo; and then &ldquo;Trust&rdquo;. This allows Bob to look at the contents of the folder.
+        </div>
+        <figure class="setup-fig"><img src="images/setup-restricted-banner.png" alt="Restricted Mode banner with Manage and Learn More links"></figure>
+        <figure class="setup-fig"><img src="images/setup-workspace-trust.png" alt="Workspace Trust page with the Trust button"></figure>
+      </li>
+      <li>Now, go to the top and click &ldquo;Terminal&rdquo;, then select &ldquo;New Terminal&rdquo;. A terminal will pop up at the bottom.
+        <figure class="setup-fig"><img src="images/setup-terminal-menu.png" alt="Bob menu bar with Terminal highlighted"></figure>
+      </li>
+      <li>Now, right click on <code>SETUP.md</code> and select &ldquo;Open Preview&rdquo;.
+        <figure class="setup-fig"><img src="images/setup-open-preview.png" alt="Right-click menu on SETUP.md showing Open Preview"></figure>
+      </li>
+      <li>Follow the instructions in the file to create and activate your Python virtual environment that you will be using throughout this lab.</li>
+    </ol>
+
+    <hr class="divider" />
 
     <!-- ════════════════════════════════════════════════════════════
          STEPS 2 & 3
@@ -900,11 +970,11 @@ Finish with a line confirming the results are live in PA.</pre></div>
     <table class="index-table">
       <thead><tr><th>#</th><th>Cell</th><th>What Bob produces</th></tr></thead>
       <tbody>
-        <tr><td><a href="#prompt-42">4.2</a></td><td>Cell 2</td><td><code>score_clinical_optimizer.py</code> — self-contained script for the DO batch job</td></tr>
-        <tr><td><a href="#prompt-44">4.4</a></td><td>Cell 4</td><td>Packages script into <code>.tar.gz</code> and uploads as a model asset</td></tr>
-        <tr><td><a href="#prompt-45">4.5</a></td><td>Cell 5</td><td>Creates the batch deployment endpoint</td></tr>
-        <tr><td><a href="#prompt-46">4.6</a></td><td>Cell 6</td><td>Submits test job, polls until done, displays four output CSVs</td></tr>
-        <tr><td><a href="#prompt-47">4.7</a></td><td>Cell 7</td><td>Reads back all four PA cubes to confirm the endpoint wrote correctly</td></tr>
+        <tr><td><a href="#prompt-42">4.1</a></td><td>Cell 2</td><td><code>score_clinical_optimizer.py</code> — self-contained script for the DO batch job</td></tr>
+        <tr><td><a href="#prompt-44">4.2</a></td><td>Cell 3</td><td>Packages script into <code>.tar.gz</code> and uploads as a model asset</td></tr>
+        <tr><td><a href="#prompt-45">4.3</a></td><td>Cell 4</td><td>Creates the batch deployment endpoint</td></tr>
+        <tr><td><a href="#prompt-46">4.4</a></td><td>Cell 5</td><td>Submits test job, polls until done, displays four output CSVs</td></tr>
+        <tr><td><a href="#prompt-47">4.5</a></td><td>Cell 6</td><td>Reads back all four PA cubes to confirm the endpoint wrote correctly</td></tr>
       </tbody>
     </table>
 
@@ -912,7 +982,7 @@ Finish with a line confirming the results are live in PA.</pre></div>
     <div id="prompt-42" class="prompt-card" style="margin-top:28px">
       <div class="prompt-card-header">
         <div class="meta">
-          <div class="prompt-id">Prompt 4.2 · Cell 2</div>
+          <div class="prompt-id">Prompt 4.1 · Cell 2</div>
           <h4>Turn the optimizer into a standalone script</h4>
           <div class="produces">Produces <code>score_clinical_optimizer.py</code> — fully self-contained DO batch script</div>
         </div>
@@ -978,7 +1048,7 @@ Please name the file score_clinical_optimizer.py.</pre></div>
     <div id="prompt-44" class="prompt-card">
       <div class="prompt-card-header">
         <div class="meta">
-          <div class="prompt-id">Prompt 4.4 · Cell 4</div>
+          <div class="prompt-id">Prompt 4.2 · Cell 2</div>
           <h4>Package the script and register it in watsonx.ai</h4>
           <div class="produces">Produces notebook cell — bundles script into <code>.tar.gz</code> and uploads as DO model asset</div>
         </div>
@@ -1011,7 +1081,7 @@ Please write Python code I can paste directly into a notebook cell that:
     <div id="prompt-45" class="prompt-card">
       <div class="prompt-card-header">
         <div class="meta">
-          <div class="prompt-id">Prompt 4.5 · Cell 5</div>
+          <div class="prompt-id">Prompt 4.3 · Cell 3</div>
           <h4>Create the live batch deployment endpoint</h4>
           <div class="produces">Produces notebook cell — creates and waits for a watsonx.ai batch deployment</div>
         </div>
@@ -1040,7 +1110,7 @@ Please write Python code I can paste directly into a notebook cell that:
     <div id="prompt-46" class="prompt-card">
       <div class="prompt-card-header">
         <div class="meta">
-          <div class="prompt-id">Prompt 4.6 · Cell 6</div>
+          <div class="prompt-id">Prompt 4.4 · Cell 4</div>
           <h4>Run a test job and check the output</h4>
           <div class="produces">Produces notebook cell — submits job, polls status, displays all four output DataFrames</div>
         </div>
@@ -1075,7 +1145,7 @@ Please write Python code I can paste directly into a notebook cell that:
     <div id="prompt-47" class="prompt-card">
       <div class="prompt-card-header">
         <div class="meta">
-          <div class="prompt-id">Prompt 4.7 · Cell 7</div>
+          <div class="prompt-id">Prompt 4.5 · Cell 5</div>
           <h4>Go back into PA and verify the data actually landed</h4>
           <div class="produces">Produces notebook cell — reconnects to PA and reads back all four cubes</div>
         </div>
