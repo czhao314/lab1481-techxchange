@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lab 1481: Bob Prompts for the Clinical Staffing Optimizer</title>
+  <title>Lab 1481: Build AI-Powered Staff Schedules with Planning Analytics, CPLEX, and IBM Bob</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -19,6 +19,8 @@
       --tag-step2-bg: #f3f0ff;
       --tag-step4: #0e7490;
       --tag-step4-bg: #ecfeff;
+      --tag-pa: #b45309;
+      --tag-pa-bg: #fff7ed;
       --green: #16a34a;
       --green-bg: #f0fdf4;
       --warn: #b45309;
@@ -212,6 +214,7 @@
     .nb-tag.step23 { background: var(--tag-step2-bg); color: var(--tag-step2); }
     .nb-tag.step4  { background: var(--tag-step4-bg); color: var(--tag-step4); }
     .nb-tag.setup  { background: var(--green-bg); color: var(--green); }
+    .nb-tag.pa     { background: var(--tag-pa-bg); color: var(--tag-pa); }
 
     /* ── Setup steps ── */
     .setup-sub {
@@ -405,6 +408,81 @@
       font-size: 12px;
       color: var(--muted);
     }
+
+    /* ── Wrap-up section ── */
+    .pillar-row {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      margin: 32px 0 8px;
+    }
+    .pillar {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px 18px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .pillar-icon { font-size: 28px; line-height: 1; }
+    .pillar-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .pillar-title { font-size: 15px; font-weight: 700; color: var(--text); }
+    .pillar-sub { font-size: 12px; color: var(--muted); }
+    .pillar-connector {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 8px;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .pillar-connector-arrow { font-size: 18px; color: var(--muted); }
+    .pillar-connector-label {
+      font-size: 10px;
+      color: var(--muted);
+      text-align: center;
+      max-width: 60px;
+      line-height: 1.3;
+    }
+    .pillar-return {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 6px 0 28px;
+      padding: 8px 14px;
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: 6px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .artifact-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 20px 0 28px;
+    }
+    .artifact-chip {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 14px;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      min-width: 200px;
+      flex: 1;
+    }
+    .artifact-chip code { font-size: 12px; font-weight: 600; }
+    .artifact-chip span { font-size: 12px; color: var(--muted); }
   </style>
 </head>
 <body>
@@ -415,21 +493,25 @@
   <!-- ── Sidebar ── -->
   <aside class="sidebar">
     <div class="sidebar-logo">
-      <h1>Clinical Staffing<br>Optimizer</h1>
-      <p>Bob Prompts</p>
+      <h1>Lab 1481: Build AI-Powered Staff Schedules with Planning Analytics, CPLEX, and IBM Bob</h1>
     </div>
 
-    <div class="sidebar-section collapsed">Notebook Setup</div>
+    <div class="sidebar-section collapsed">Lab Setup</div>
     <nav>
       <a href="#setup">Overview</a>
       <a href="#setup-files">Access Lab Files</a>
       <a href="#setup-bob">Setting up Bob</a>
     </nav>
 
-    <div class="sidebar-section collapsed">Data Exploration and Clinical Staffing Optimizer Build</div>
+    <div class="sidebar-section collapsed">Data Exploration</div>
     <nav>
-      <a href="#step23">Overview</a>
+      <a href="#review-dashboard">Planning Analytics Step 1 — Review the staffing challenge</a>
       <a href="#explore-data">Notebook Step 1 — Understanding your data</a>
+    </nav>
+
+    <div class="sidebar-section collapsed">Clinical Staffing Optimizer Build</div>
+    <nav>
+      <a href="#step3">Overview</a>
       <a href="#build-optimization">Notebook Step 2 — Building the optimization</a>
       <a href="#prompt-A">A — Loading Data from Planning Analytics</a>
       <a href="#prompt-31">3.1 — Setup &amp; load data into the notebook</a>
@@ -443,7 +525,7 @@
       <a href="#prompt-39">3.9 — Verify</a>
     </nav>
 
-    <div class="sidebar-section collapsed">Deploy Clinical Endpoint</div>
+    <div class="sidebar-section collapsed">Deploy and Test the Model</div>
     <nav>
       <a href="#step4">Overview</a>
       <a href="#deploy-test">Notebook Step 1 — Deploying &amp; testing</a>
@@ -453,23 +535,40 @@
       <a href="#prompt-46">4.4 — Smoke test</a>
       <a href="#prompt-47">4.5 — PA verify</a>
     </nav>
+
+    <div class="sidebar-section collapsed">Running in Planning Analytics</div>
+    <nav>
+      <a href="#pa">Overview</a>
+      <a href="#pa-workbench">5.1 — Setup deployment script</a>
+      <a href="#pa-create-workbench">5.1.1 — Create workbench</a>
+      <a href="#pa-create-process">5.1.2 — Create process</a>
+      <a href="#pa-create-script">5.1.3 — Create script</a>
+      <a href="#pa-test-script">5.1.4 — Test script</a>
+      <a href="#pa-book">5.2 — Create &amp; configure the book</a>
+      <a href="#pa-run">5.3 — Run &amp; review results</a>
+    </nav>
+
+    <div class="sidebar-section collapsed">Wrap-Up</div>
+    <nav>
+      <a href="#wrapup">Summary</a>
+    </nav>
   </aside>
 
   <!-- ── Main ── -->
   <main class="main">
 
     <div class="page-header">
-      <div class="eyebrow">HR Optimization</div>
-      <h2>Bob Prompt Reference</h2>
-      <p>Copy each prompt into the Bob chat panel, then paste the generated code into the matching notebook cell. Prompts are written from the perspective of a Planning Analytics power user who is <em>not</em> an optimization or deployment expert.</p>
+      <div class="eyebrow">IBM TechXchange 2026 &mdash; Lab 1481</div>
+      <h2>Build AI-Powered Staff Schedules with Planning Analytics, CPLEX, and IBM Bob</h2>
+      <p>In this lab you will take on the role of a hospital unit budget manager. Starting from live Planning Analytics data, you will use IBM Bob to build, solve, and deploy a CPLEX optimization model that simultaneously decides which new hires to activate, which shift to assign each clinician, and what merit raise to award — all within a $1.65M budget cap. No prior knowledge of mathematical programming is required.</p>
     </div>
 
 
     <!-- ════════════════════════════════════════════════════════════
-         NOTEBOOK SETUP
+         LAB SETUP
     ═════════════════════════════════════════════════════════════ -->
     <div id="setup" class="section-header">
-      <span class="nb-tag setup">Notebook Setup</span>
+      <span class="nb-tag setup">Lab Setup</span>
       <h3>Lab Set Up</h3>
     </div>
     <p class="section-intro">This lab set up assumes that you have been able to log into IBM Cloud and Planning Analytics, and that Bob is accessible on the machine that you are running the lab on.</p>
@@ -502,15 +601,31 @@
     <hr class="divider" />
 
     <!-- ════════════════════════════════════════════════════════════
-         STEPS 2 & 3
+         DATA EXPLORATION
     ═════════════════════════════════════════════════════════════ -->
     <div id="step23" class="section-header">
-      <span class="nb-tag step23">Data Exploration and Clinical Staffing Optimizer Build</span>
-      <h3>step_123_bob.ipynb</h3>
+      <span class="nb-tag step23">Data Exploration</span>
     </div>
-    <p class="section-intro">Build the data loader, shared scoring helpers, two hand-crafted baselines, the DOcplex MILP model, and the PA write-back — all from the point of view of someone who knows the cubes but not the optimization math.</p>
 
-    <h4 id="explore-data" class="setup-sub">Notebook Step 1: Understanding your data</h4>
+    <h4 id="review-dashboard" class="setup-sub">Planning Analytics Step 1: Review the staffing challenge</h4>
+    <ol class="setup-steps">
+      <li>Open IBM Planning Analytics in your browser. Click the hamburger (☰) menu in the top-left corner to open the navigation panel.
+        <figure class="setup-fig"><img src="images/pa/pa-nav-shared.png" alt="Hamburger navigation panel open in Planning Analytics showing the Shared item"></figure>
+      </li>
+      <li>Click <strong>Shared</strong> in the navigation panel.</li>
+      <li>In the Shared panel, navigate into the <code>HR_Optimization</code> folder, then into the <code>shared</code> subfolder (breadcrumb: Shared / HR_Optimization / shared).
+        <figure class="setup-fig"><img src="images/pa/pa-shared-folder.png" alt="Shared panel with breadcrumb showing HR_Optimization shared folder and the dashboard item"></figure>
+      </li>
+      <li>Click <strong>HR_Optimization — Clinical Staffing Challenge</strong> to open the dashboard.</li>
+      <li>Review the <strong>Today's Challenge</strong> tab — it shows: the Problem Brief (staffing constraints), a Budget table (shift rates and FTE limits), the Current Employees table (12 clinicians with skill, seniority, attrition risk), and the Open Hire Slots table (6 candidates).
+        <figure class="setup-fig"><img src="images/pa/pa-dashboard-open.png" alt="HR_Optimization Clinical Staffing Challenge dashboard open on the Today's Challenge tab"></figure>
+      </li>
+    </ol>
+    <div class="callout warn" style="margin-top:14px"><strong>Note:</strong> This is a read-only orientation step. Do not edit the dashboard — just review the data to understand the problem you will solve in the notebook.</div>
+
+    <p class="section-intro">Now open the notebook to explore the same data programmatically. Build the data loader, shared scoring helpers, two hand-crafted baselines, the DOcplex MILP model, and the PA write-back — all from the point of view of someone who knows the cubes but not the optimization math.</p>
+
+    <h4 id="explore-data" class="setup-sub">Notebook Step 1: Understanding your data <span style="font-weight:400;font-size:0.85em;color:var(--muted)">— <code>step_123_bob.ipynb</code></span></h4>
     <ol class="setup-steps">
       <li>In Bob, where you have imported your folder, go ahead and open the notebook named <code>step_123_bob.ipynb</code>.</li>
       <li>The credentials for connecting to Planning Analytics and watsonx.ai will already be populated in the notebook.</li>
@@ -520,7 +635,18 @@
       <li>Fill in the credentials, and then run through the first few cells in the notebook by pressing the play button next to each cell. By running through this notebook, you will ensure that the connections with the credentials work, and explore the data that lives within the Planning Analytics database.</li>
     </ol>
 
-    <h4 id="build-optimization" class="setup-sub">Notebook Step 2: Building out your Optimization problem using Bob, watsonx.ai, and IBM CPLEX</h4>
+    <hr class="divider" />
+
+    <!-- ════════════════════════════════════════════════════════════
+         CLINICAL STAFFING OPTIMIZER BUILD
+    ═════════════════════════════════════════════════════════════ -->
+    <div id="step3" class="section-header">
+      <span class="nb-tag step23">Clinical Staffing Optimizer Build</span>
+      <h3>step_123_bob.ipynb</h3>
+    </div>
+    <p class="section-intro">Use IBM Bob to build the CPLEX optimization model — all from the perspective of a Planning Analytics power user who is <em>not</em> an optimization or deployment expert. Copy each prompt into the Bob chat panel, then paste the generated code into the matching notebook cell.</p>
+
+    <h4 id="build-optimization" class="setup-sub">Notebook Step 2: Building out your optimization problem using Bob, watsonx.ai, and IBM CPLEX</h4>
     <ol class="setup-steps">
       <li>Once you&rsquo;ve finished running the first 3 cells in the notebook, you can begin working with Bob to build out a staffing and budget optimization problem. The Bob prompts you will follow live below. Using the prompts, Bob will write out code that:
         <ol type="a" style="margin:8px 0 0 20px">
@@ -641,6 +767,7 @@ hand back the same DataFrames and constants without needing a PA connection.
 If the file isn't there yet, tell the user they need to run load_step2_data
 first.</pre></div>
     </div>
+
 
     <!-- Prompt 3.1 -->
     <div id="prompt-31" class="prompt-card">
@@ -997,7 +1124,7 @@ Finish with a line confirming the results are live in PA.</pre></div>
          STEP 4
     ═════════════════════════════════════════════════════════════ -->
     <div id="step4" class="section-header">
-      <span class="nb-tag step4">Deploy Clinical Endpoint</span>
+      <span class="nb-tag step4">Deploy and Test the Model</span>
       <h3>step_4_bob.ipynb</h3>
     </div>
     <p class="section-intro">Package and deploy the optimizer as a watsonx.ai DO batch endpoint — from the point of view of someone who has never set up a deployment before and doesn't know the packaging infrastructure involved.</p>
@@ -1151,6 +1278,11 @@ Please write Python code I can paste directly into a notebook cell that:
 4. Prints the DEPLOYMENT_ID at the end — I'll need it to submit test jobs.</pre></div>
     </div>
 
+    <div class="callout warn" style="margin-top:16px">
+      <strong>Important — note your <code>DEPLOYMENT_ID</code>:</strong> Copy the <code>DEPLOYMENT_ID</code> value printed in your cell output and paste it into a notepad or come back to this section later. You will need it in section 5.1.3 when configuring the Planning Analytics TI script.
+      <figure class="setup-fig" style="margin-top:10px"><img src="images/pa/deployment-id-notebook.png" alt="Notebook cell output showing the DEPLOYMENT_ID printed after the batch deployment is created successfully"></figure>
+    </div>
+
     <!-- Prompt 4.6 -->
     <div id="prompt-46" class="prompt-card">
       <div class="prompt-card-header">
@@ -1230,7 +1362,240 @@ At the end, assert that the Budget Control data isn't empty. If it is, the endpo
 didn't actually write anything to PA and we need to investigate.</pre></div>
     </div>
 
-    <!-- Notes step 4 -->
+    <hr class="divider" />
+
+    <!-- ════════════════════════════════════════════════════════════
+         RUNNING IN PLANNING ANALYTICS
+    ═════════════════════════════════════════════════════════════ -->
+    <div id="pa" class="section-header">
+      <span class="nb-tag pa">Running in Planning Analytics</span>
+      <h3>Running your Optimization model in Planning Analytics</h3>
+    </div>
+    <p class="section-intro">Set up and run the deployed CPLEX endpoint directly from Planning Analytics — creating a Workbench process, a Book with an action button, and an Exploration view to visualize your optimized results.</p>
+
+    <!-- 5.1 -->
+    <h4 id="pa-workbench" class="setup-sub">5.1 — Setup a deployment execution script through Planning Analytics Workbench</h4>
+
+    <h4 id="pa-create-workbench" class="setup-sub">5.1.1 — Create a new workbench</h4>
+    <ol class="setup-steps">
+      <li>From the Planning Analytics Home Page, click the hamburger menu, then click <strong>New</strong>, then <strong>Workbench</strong>.
+        <figure class="setup-fig"><img src="images/pa/pa-workbench-hamburger-new.png" alt="PA hamburger menu open showing New then Workbench option"></figure>
+      </li>
+      <li>Save your new workbench by clicking the <strong>Save</strong> icon, then clicking <strong>Save Workbench As</strong>. In the Save Workbench window, find the <strong>Shared</strong> tab and click into the <code>HR_Optimization</code> shared folder. In the Name box, enter <code>HR_Opt_Workbench_[YourFirstNameYourLastName]</code>, then click <strong>Save</strong>.
+        <figure class="setup-fig"><img src="images/pa/pa-workbench-save-dialog.png" alt="Save Workbench dialog with Name field and Shared tab highlighted"></figure>
+        <figure class="setup-fig"><img src="images/pa/pa-workbench-save-folder.png" alt="Save Workbench dialog with HR_Optimization folder selected and name entered"></figure>
+      </li>
+    </ol>
+
+    <h4 id="pa-create-process" class="setup-sub">5.1.2 — Create a new process in your workbench</h4>
+    <ol class="setup-steps">
+      <li>Click the <strong>New Process</strong> button.
+        <figure class="setup-fig"><img src="images/pa/pa-process-new-button.png" alt="New Process button in the workbench toolbar"></figure>
+      </li>
+      <li>Under <strong>Database</strong>, find and select <code>HR_Optimization</code>. Set the Process Name to <code>HR_Optimization_Process_[YourFirstNameYourLastName]</code>, then click <strong>Create</strong>.
+        <figure class="setup-fig"><img src="images/pa/pa-process-create-dialog.png" alt="Create Process dialog with HR_Optimization database selected and process name entered"></figure>
+      </li>
+    </ol>
+
+    <h4 id="pa-create-script" class="setup-sub">5.1.3 — Create the deployment execution script</h4>
+    <ol class="setup-steps">
+      <li>Click the <strong>Script</strong> tab in the new Process.
+        <figure class="setup-fig"><img src="images/pa/pa-script-tab.png" alt="Process editor with Script tab selected showing the #Section Prolog area"></figure>
+      </li>
+      <li>Open the link to the script file provided by the lab facilitator. Copy the entire contents and paste them under <code>#Section Prolog</code> in the Script tab.</li>
+      <li>Open the credentials link provided by the lab facilitator and copy the following values to replace the empty strings at the top of the script:
+        <ol type="a" style="margin:8px 0 0 20px">
+          <li><code>sSpaceID = '';</code></li>
+          <li><code>sDeploymentID = '';</code> — <strong>this does not come from the credentials file.</strong> Use the <code>DEPLOYMENT_ID</code> printed in your <code>step_4_bob.ipynb</code> Cell 4 output when you ran <a href="#prompt-45">Prompt 4.3 — Create the live batch deployment endpoint</a>.
+            <div class="callout warn" style="margin:8px 0 0 0">If you haven't run the Deploy section yet, complete <strong>section 3 (Deploy and Test the Model)</strong> first, then return here with your <code>DEPLOYMENT_ID</code>.</div>
+          </li>
+          <li><code>sJobsURL = '';</code></li>
+          <li><code>sIAMURL = '';</code></li>
+          <li><code>sAPIKey = '';</code></li>
+        </ol>
+      </li>
+      <li>Save the script by clicking the <strong>Save</strong> icon, then selecting <strong>Save as</strong>.
+        <figure class="setup-fig"><img src="images/pa/pa-script-save-dropdown.png" alt="Save dropdown open showing Save and Save as options"></figure>
+      </li>
+      <li>In the Save As dialog, set the Process Name to <code>RunStaffOptimization_[YourFirstNameYourLastName]</code>, then click <strong>Save as</strong>.
+        <figure class="setup-fig"><img src="images/pa/pa-script-save-as-dialog.png" alt="Save RunStaffOptimization as dialog with process name field"></figure>
+        <figure class="setup-fig"><img src="images/pa/pa-script-save-as-name.png" alt="Save As dialog with name RunStaffOptimization_[YourName] entered"></figure>
+      </li>
+      <li>Select the <strong>Parameters</strong> tab and click <strong>Add parameter +</strong>. Add one parameter:
+        <ol type="a" style="margin:8px 0 0 20px">
+          <li>Parameter name: <code>pVersion</code></li>
+          <li>Type: <code>String</code></li>
+          <li>Value: <code>YourFirstNameYourLastName</code></li>
+        </ol>
+        <figure class="setup-fig"><img src="images/pa/pa-parameters-tab.png" alt="Parameters tab showing pVersion parameter with String type"></figure>
+        <figure class="setup-fig"><img src="images/pa/pa-parameters-tab-filled.png" alt="Parameters tab with pVersion value set to your name"></figure>
+      </li>
+    </ol>
+
+    <h4 id="pa-test-script" class="setup-sub">5.1.4 — Test the deployment script</h4>
+    <ol class="setup-steps">
+      <li>Click <strong>Run</strong> in the process toolbar.</li>
+      <li>In the popup window that appears, confirm <code>pVersion</code> shows your name, then click <strong>Run</strong>.
+        <figure class="setup-fig"><img src="images/pa/pa-test-run-popup.png" alt="Run popup showing pVersion parameter with your name and the Run button highlighted"></figure>
+      </li>
+    </ol>
+
+    <hr class="divider" />
+
+    <!-- 5.2 -->
+    <h4 id="pa-book" class="setup-sub">5.2 — Create and configure the Planning Analytics Book</h4>
+    <ol class="setup-steps">
+      <li>Click the hamburger menu, then <strong>New</strong>, then <strong>Book</strong>.
+        <figure class="setup-fig"><img src="images/pa/pa-book-new-hamburger.png" alt="PA hamburger menu showing New then Book option"></figure>
+      </li>
+      <li>Click the <strong>Save</strong> icon, then click the <strong>Shared</strong> tab, then select the <code>HR_Optimization</code> folder. In the Name field type <code>HR_Opt_Book_[FirstNameLastName]</code>, then click <strong>Save</strong>.
+        <figure class="setup-fig"><img src="images/pa/pa-book-save-dialog.png" alt="Save As dialog for new book with name and HR_Optimization folder selected"></figure>
+      </li>
+      <li>With the book open, open the book spec editor using the keyboard shortcut:
+        <div style="margin:10px 0 4px 0;display:flex;gap:16px;flex-wrap:wrap;align-items:center;">
+          <span style="font-size:12px;color:var(--muted);min-width:48px;">Windows</span>
+          <span style="display:inline-flex;gap:4px;align-items:center;">
+            <kbd style="display:inline-block;padding:3px 8px;background:var(--surface);border:1px solid var(--border);border-bottom:2px solid #bbb;border-radius:4px;font-family:monospace;font-size:13px;font-weight:600;">Ctrl</kbd>
+            <span style="color:var(--muted);font-size:13px;">+</span>
+            <kbd style="display:inline-block;padding:3px 8px;background:var(--surface);border:1px solid var(--border);border-bottom:2px solid #bbb;border-radius:4px;font-family:monospace;font-size:13px;font-weight:600;">Q</kbd>
+            <span style="color:var(--muted);font-size:13px;">, then</span>
+            <kbd style="display:inline-block;padding:3px 8px;background:var(--surface);border:1px solid var(--border);border-bottom:2px solid #bbb;border-radius:4px;font-family:monospace;font-size:13px;font-weight:600;">/</kbd>
+          </span>
+        </div>
+        <div style="margin:4px 0 0 0;display:flex;gap:16px;flex-wrap:wrap;align-items:center;">
+          <span style="font-size:12px;color:var(--muted);min-width:48px;">Mac</span>
+          <span style="display:inline-flex;gap:4px;align-items:center;">
+            <kbd style="display:inline-block;padding:3px 8px;background:var(--surface);border:1px solid var(--border);border-bottom:2px solid #bbb;border-radius:4px;font-family:monospace;font-size:13px;font-weight:600;">⌘</kbd>
+            <span style="color:var(--muted);font-size:13px;">+</span>
+            <kbd style="display:inline-block;padding:3px 8px;background:var(--surface);border:1px solid var(--border);border-bottom:2px solid #bbb;border-radius:4px;font-family:monospace;font-size:13px;font-weight:600;">Q</kbd>
+            <span style="color:var(--muted);font-size:13px;">, then</span>
+            <kbd style="display:inline-block;padding:3px 8px;background:var(--surface);border:1px solid var(--border);border-bottom:2px solid #bbb;border-radius:4px;font-family:monospace;font-size:13px;font-weight:600;">/</kbd>
+          </span>
+        </div>
+        <figure class="setup-fig"><img src="images/pa/pa-board-spec-window.png" alt="Book spec editor window open showing the JSON spec field and blue Update button"></figure>
+      </li>
+      <li>Open the <code>dashboard.json</code> file provided in the lab files, copy its entire contents, paste it into the spec editor window, then click the blue <strong>Update</strong> button. The book will reload with all tabs, widgets, and the Run Optimization button already configured.
+        <div class="callout warn" style="margin-top:10px"><strong>Note:</strong> Make sure you replace all existing content in the spec editor before clicking Update — do not append.</div>
+      </li>
+      <li>Navigate to the <strong>Run Optimization</strong> tab. You will see the blue <strong>Run Optimization</strong> button and a results grid below it.
+        <figure class="setup-fig"><img src="images/pa/pa-tab-run-optimization.png" alt="Run Optimization tab showing the blue Run Optimization button and the results grid"></figure>
+      </li>
+      <li>Click the <strong>Run Optimization</strong> button once to select it, then click <strong>Properties</strong> in the upper-right corner, then open the <strong>Configure</strong> tab. Verify that <strong>Run Process</strong> is toggled ON (green) and that the following are set:
+        <ol type="a" style="margin:8px 0 0 20px">
+          <li>Database: <code>HR_Optimization</code></li>
+          <li>Process: <code>RunStaffOptimization_[YourFirstNameYourLastName]</code></li>
+          <li>The <strong>Refresh after execution</strong> checkbox is checked</li>
+        </ol>
+        If any of these are missing, set them now, then click the <strong>Save</strong> icon.
+        <figure class="setup-fig"><img src="images/pa/pa-book-configure-process.png" alt="Properties Configure tab with Run Process toggled on and HR_Optimization database selected"></figure>
+        <figure class="setup-fig"><img src="images/pa/pa-book-configure-panel.png" alt="Configure panel showing Run Process ON, database, process name, and Refresh after execution checked"></figure>
+      </li>
+    </ol>
+
+    <hr class="divider" />
+
+    <!-- 5.3 -->
+    <h4 id="pa-run" class="setup-sub">5.3 — Run the optimization and review your results</h4>
+    <ol class="setup-steps">
+      <li>Toggle <strong>Edit</strong> to <strong>OFF</strong> using the toggle in the top-left of the Book toolbar.
+        <figure class="setup-fig"><img src="images/pa/pa-book-edit-toggle-off.png" alt="Book toolbar with Edit toggle switched to OFF"></figure>
+      </li>
+      <li>On the <strong>Run Optimization</strong> tab, click the blue <strong>Run Optimization</strong> button. The job will take 60–90 seconds. The results grid will refresh automatically when it completes — you should see your name row populated with Total Workforce Cost Used, Merit Pool Used, and Budget Remaining.
+        <figure class="setup-fig"><img src="images/pa/pa-tab-run-optimization.png" alt="Run Optimization tab showing results populated after the job completes"></figure>
+      </li>
+      <li>Click the <strong>Results Summary</strong> tab. Review the three KPI tiles — Budget Used, Hire Slots Activated, and Merit Pool Deployed — and the summary grid showing your totals.
+        <figure class="setup-fig"><img src="images/pa/pa-tab-results-summary.png" alt="Results Summary tab showing three KPI tiles and the summary grid with your name row"></figure>
+      </li>
+      <li>Click the <strong>Headcount Plan</strong> tab. Review which of the 6 new hire slots CPLEX activated (value = 1.00) and which were skipped (value = 0.00). Notice that the optimizer hired the highest-skill slots first and stopped at the budget ceiling.
+        <figure class="setup-fig"><img src="images/pa/pa-tab-headcount-plan.png" alt="Headcount Plan tab showing Hire Decision Optimized column with 1.00 for activated slots and 0.00 for skipped"></figure>
+      </li>
+      <li>Click the <strong>Schedule</strong> tab. Review each of the 12 clinicians' band assignments (Day vs Night), their FTE, and their annual loaded cost. Notice that 11 of 12 employees were assigned to their preferred shift.
+        <figure class="setup-fig"><img src="images/pa/pa-tab-schedule.png" alt="Schedule tab showing all 12 employees with their optimized band assignments, FTE, and annual cost"></figure>
+      </li>
+      <li>Click the <strong>Merit &amp; Retention</strong> tab. Review the merit percentage and dollar amount awarded to each employee. Notice that merit is not purely risk-ranked — the optimizer maximises retention ROI across the combination of attrition risk, skill score, seniority, and FTE.
+        <figure class="setup-fig"><img src="images/pa/pa-tab-merit-retention.png" alt="Merit and Retention tab showing optimized merit percentage and dollar amount for each employee"></figure>
+      </li>
+    </ol>
+
+    <hr class="divider" />
+
+    <!-- ════════════════════════════════════════════════════════════
+         WRAP-UP
+    ═════════════════════════════════════════════════════════════ -->
+    <div id="wrapup" class="section-header">
+      <span class="nb-tag setup">Lab Complete</span>
+      <h3>You built a production-grade AI pipeline</h3>
+    </div>
+
+    <p class="section-intro">You just went from a live Planning Analytics cube to a deployed CPLEX optimization model — triggered by a button click inside PA — without any prior knowledge of mathematical programming or MLOps. Here's the architecture you built.</p>
+
+    <!-- Architecture visual -->
+    <div class="pillar-row">
+      <div class="pillar" style="border-top:3px solid var(--tag-pa);">
+        <div class="pillar-icon">🗄️</div>
+        <div class="pillar-label" style="color:var(--tag-pa);">Your data source</div>
+        <div class="pillar-title">IBM Planning Analytics</div>
+        <div class="pillar-sub">Live HR_Optimization cubes — budgets, employees, hire slots, shift constraints</div>
+      </div>
+      <div class="pillar-connector">
+        <div class="pillar-connector-arrow">→</div>
+        <div class="pillar-connector-label">IBM Bob generated the code</div>
+      </div>
+      <div class="pillar" style="border-top:3px solid var(--tag-step2);">
+        <div class="pillar-icon">🧠</div>
+        <div class="pillar-label" style="color:var(--tag-step2);">You built this</div>
+        <div class="pillar-title">Python + CPLEX Optimizer</div>
+        <div class="pillar-sub">MILP model solving shift assignments, merit raises &amp; new hires simultaneously within a $1.65M cap</div>
+      </div>
+      <div class="pillar-connector">
+        <div class="pillar-connector-arrow">→</div>
+        <div class="pillar-connector-label">Deployed as a live endpoint</div>
+      </div>
+      <div class="pillar" style="border-top:3px solid var(--tag-step4);">
+        <div class="pillar-icon">☁️</div>
+        <div class="pillar-label" style="color:var(--tag-step4);">Runs on demand</div>
+        <div class="pillar-title">watsonx.ai Batch Endpoint</div>
+        <div class="pillar-sub">DO batch deployment — triggered from PA or any API, results written back automatically</div>
+      </div>
+    </div>
+    <div class="pillar-return">
+      <span>↩</span>
+      <span>Optimized results write back to Planning Analytics automatically — visible in your Book the moment the job completes</span>
+    </div>
+
+    <!-- What you built -->
+    <h4 class="setup-sub">What you produced</h4>
+    <div class="artifact-grid">
+      <div class="artifact-chip" style="border-top:2px solid var(--tag-pa);">
+        <code>data_loader.py</code>
+        <span>Pulls PA cube data into Python, validates all fields, caches to JSON</span>
+      </div>
+      <div class="artifact-chip" style="border-top:2px solid var(--tag-step2);">
+        <code>step_123_bob.ipynb</code>
+        <span>CPLEX MILP optimizer — shift assignments, merit raises, and new hire decisions in one solve</span>
+      </div>
+      <div class="artifact-chip" style="border-top:2px solid var(--tag-step4);">
+        <code>score_clinical_optimizer.py</code>
+        <span>Self-contained DO batch script — the optimizer packaged for deployment</span>
+      </div>
+      <div class="artifact-chip" style="border-top:2px solid var(--tag-step4);">
+        <code>watsonx.ai batch endpoint</code>
+        <span>Live deployment of your model — accepts jobs, runs the optimizer, returns results</span>
+      </div>
+      <div class="artifact-chip" style="border-top:2px solid var(--tag-pa);">
+        <code>PA Book + TI script</code>
+        <span>One-click run of the AI model from directly inside Planning Analytics — no notebook required</span>
+      </div>
+    </div>
+
+    <!-- Enterprise pattern -->
+    <h4 class="setup-sub">The pattern you can take forward</h4>
+    <p style="color:var(--muted);font-size:13px;max-width:620px;margin-bottom:20px;">This architecture — PA cubes as a data source, Bob-generated Python for the optimization logic, watsonx.ai for deployment, and a TI script to close the loop — works for any optimization problem you can model from PA data. Financial planning, supply chain allocation, capacity scheduling: the same five-step loop applies. You now have a reusable blueprint.</p>
+
+    <!-- What Bob made possible -->
+    <h4 class="setup-sub">What IBM Bob made possible</h4>
+    <p style="color:var(--muted);font-size:13px;max-width:620px;">Building this without Bob would have required a mathematical programmer to write the CPLEX model, a Python engineer to package it for DO, and an MLOps engineer to handle the watsonx.ai deployment. Bob collapsed all three roles into guided prompting — so a Planning Analytics power user could take this from a live cube to a deployed endpoint in a single lab session.</p>
+
     <footer>
       <p>Made with IBM Bob</p>
     </footer>
