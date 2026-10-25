@@ -97,6 +97,51 @@
     .sidebar-section.collapsed::after { transform: rotate(-45deg); }
     .sidebar-section.collapsed + nav { display: none; }
 
+    /* ── Sidebar sub-section (nested collapsible e.g. Bob Prompts) ── */
+    .sidebar-subsection {
+      padding: 5px 20px 4px 28px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 4px;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+    .sidebar-subsection:hover { color: var(--text); }
+    .sidebar-subsection a.subsection-label {
+      flex: 1;
+      color: inherit;
+      text-decoration: none;
+      display: block;
+      padding: 0;
+    }
+    .sidebar-subsection a.subsection-label:hover { color: var(--text); }
+    .sidebar-subsection-toggle {
+      flex-shrink: 0;
+      cursor: pointer;
+      padding: 4px 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .sidebar-subsection-toggle::after {
+      content: "";
+      display: block;
+      width: 5px;
+      height: 5px;
+      border-right: 2px solid currentColor;
+      border-bottom: 2px solid currentColor;
+      transform: rotate(45deg);
+      transition: transform 0.15s;
+    }
+    .sidebar-subsection.collapsed .sidebar-subsection-toggle::after { transform: rotate(-45deg); }
+    .sidebar-subsection.collapsed + nav.sidebar-subnav { display: none; }
+    nav.sidebar-subnav a { padding-left: 32px; }
+
     /* ── Sidebar collapse toggle ── */
     .sidebar { transition: width 0.2s, padding 0.2s; }
     .layout.sidebar-hidden .sidebar {
@@ -513,27 +558,33 @@
     <nav>
       <a href="#step3">Overview</a>
       <a href="#build-optimization">Notebook Step 2 — Building the optimization</a>
-      <a href="#prompt-A">A — Loading Data from Planning Analytics</a>
-      <a href="#prompt-31">3.1 — Setup &amp; load data into the notebook</a>
-      <a href="#prompt-32">3.2 — Shared helpers</a>
-      <a href="#prompt-33">3.3 — Baseline 1</a>
-      <a href="#prompt-34">3.4 — Baseline 2</a>
-      <a href="#prompt-35">3.5 — Comparison of Heuristics</a>
-      <a href="#prompt-36">3.6 — MILP model creation</a>
-      <a href="#prompt-37">3.7 — Solve and test</a>
-      <a href="#prompt-38">3.8 — Write back</a>
-      <a href="#prompt-39">3.9 — Verify</a>
+      <div class="sidebar-subsection collapsed"><a href="#prompts-3" class="subsection-label">Bob Prompts</a><span class="sidebar-subsection-toggle" aria-label="Toggle Bob Prompts"></span></div>
+      <nav class="sidebar-subnav">
+        <a href="#prompt-A">A — Loading Data from Planning Analytics</a>
+        <a href="#prompt-31">3.1 — Setup &amp; load data into the notebook</a>
+        <a href="#prompt-32">3.2 — Shared helpers</a>
+        <a href="#prompt-33">3.3 — Baseline 1</a>
+        <a href="#prompt-34">3.4 — Baseline 2</a>
+        <a href="#prompt-35">3.5 — Comparison of Heuristics</a>
+        <a href="#prompt-36">3.6 — MILP model creation</a>
+        <a href="#prompt-37">3.7 — Solve and test</a>
+        <a href="#prompt-38">3.8 — Write back</a>
+        <a href="#prompt-39">3.9 — Verify</a>
+      </nav>
     </nav>
 
     <div class="sidebar-section collapsed">Deploy and Test the Model</div>
     <nav>
       <a href="#step4">Overview</a>
       <a href="#deploy-test">Notebook Step 1 — Deploying &amp; testing</a>
-      <a href="#prompt-42">4.1 — Scoring script</a>
-      <a href="#prompt-44">4.2 — Package &amp; upload to watsonx.ai</a>
-      <a href="#prompt-45">4.3 — Deployment</a>
-      <a href="#prompt-46">4.4 — Smoke test</a>
-      <a href="#prompt-47">4.5 — PA verify</a>
+      <div class="sidebar-subsection collapsed"><a href="#prompts-4" class="subsection-label">Bob Prompts</a><span class="sidebar-subsection-toggle" aria-label="Toggle Bob Prompts"></span></div>
+      <nav class="sidebar-subnav">
+        <a href="#prompt-42">4.1 — Scoring script</a>
+        <a href="#prompt-44">4.2 — Package &amp; upload to watsonx.ai</a>
+        <a href="#prompt-45">4.3 — Deployment</a>
+        <a href="#prompt-46">4.4 — Smoke test</a>
+        <a href="#prompt-47">4.5 — PA verify</a>
+      </nav>
     </nav>
 
     <div class="sidebar-section collapsed">Running in Planning Analytics</div>
@@ -668,6 +719,7 @@
       </li>
     </ol>
 
+    <h4 id="prompts-3" style="font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin:20px 0 8px;">Bob Prompts</h4>
     <table class="index-table">
       <thead><tr><th>#</th><th>Where</th><th>What Bob produces</th></tr></thead>
       <tbody>
@@ -1139,6 +1191,7 @@ Finish with a line confirming the results are live in PA.</pre></div>
       <li>Follow the prompts and fill in the code blocks, then run through the cells to successfully deploy your solution to the watsonx.ai deployment space, run a test job to ensure that the deployment works, and check that your optimized data is written back to Planning Analytics.</li>
     </ol>
 
+    <h4 id="prompts-4" style="font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin:20px 0 8px;">Bob Prompts</h4>
     <table class="index-table">
       <thead><tr><th>#</th><th>Cell</th><th>What Bob produces</th></tr></thead>
       <tbody>
@@ -1628,6 +1681,15 @@ didn't actually write anything to PA and we need to investigate.</pre></div>
     h.addEventListener('click', toggle);
     h.addEventListener('keydown', e => {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+    });
+  });
+
+  document.querySelectorAll('.sidebar-subsection-toggle').forEach(btn => {
+    const subsection = btn.closest('.sidebar-subsection');
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const collapsed = subsection.classList.toggle('collapsed');
+      subsection.setAttribute('aria-expanded', String(!collapsed));
     });
   });
 
