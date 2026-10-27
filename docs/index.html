@@ -845,7 +845,7 @@ first.</pre></div>
 file called data_loader.py next to this notebook that can pull our staffing data out
 of Planning Analytics and cache it locally.
 
-Please write a setup cell that:
+Please write Python code I can paste directly into a notebook cell — a setup cell that:
   - installs the DOcplex optimization library if it isn't already there
   - loads our staffing data, using the cache if it exists and fetching fresh from
     Planning Analytics if it doesn't
@@ -866,7 +866,8 @@ Please write a setup cell that:
         <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
       </div>
       <div class="prompt-body"><pre>I'm building a staffing optimizer for a hospital unit. I know our business rules
-well, but I'm not an optimization expert, so I need your help turning them into code.
+well, but I'm not an optimization expert, so I need your help turning them into Python
+code I can paste directly into a notebook cell.
 
 My employee and new hire tables and our budget constants are already loaded. A
 staffing plan is three sets of decisions:
@@ -933,7 +934,7 @@ those names for the optimizer and don't want it to overwrite this baseline.
 For the logic, feel free to use the shortcuts E, N and G for the employee list, the
 hire slot list and the two shifts, along with the lookups we already have.
 
-Write a function called heuristic_hire_first that builds the plan like this. Put
+Please write Python code I can paste directly into a notebook cell. Write a function called heuristic_hire_first that builds the plan like this. Put
 everyone on the shift they prefer, defaulting to Day if they have no preference. If
 Night is short of its minimum coverage, move our least-skilled Day people over until
 it's covered, but never move the last senior clinician off Day. If Night still has
@@ -971,7 +972,7 @@ This one is baseline 2, so please name its plan h2, s2 and m2, its rules-check
 results ok2 and issues2, and its score obj2. Again, avoid plain h, s and m, since
 those are reserved for the optimizer.
 
-Write a function called heuristic_retention_first. The idea is to protect our
+Please write Python code I can paste directly into a notebook cell. Write a function called heuristic_retention_first. The idea is to protect our
 existing staff and spend nothing on new hires, so it fills no hire slots. Start with
 everyone on Day, then move our most junior senior clinician (skill 4 or higher) to
 Night so Night has a senior person. If Night is still below its minimum coverage,
@@ -1003,7 +1004,7 @@ anything. The scores have the usual four parts: total, capability, retention and
 preference. For anything else, use the tools and lookups we already have, like
 compute_cost, base, skill, risk, fte, E and N.
 
-First, stop with a clear message if either plan breaks a rule, and show what it
+Please write Python code I can paste directly into a notebook cell. First, stop with a clear message if either plan breaks a rule, and show what it
 broke. Otherwise, build a comparison table with a column for each plan and an empty
 column labeled "optimizer result (after solve)" that I'll fill in later. I'd like to
 see whether each plan is feasible, the total score and its three parts, total cost
@@ -1027,9 +1028,10 @@ shows the problem is worth optimizing.</pre></div>
         </div>
         <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
       </div>
-      <div class="prompt-body"><pre>Now I want to build the real optimizer using IBM's DOcplex library. I understand the
-business rules but not the math behind the solver, so please handle the technical
-details, and explain in a code comment anything non-obvious you had to do.
+      <div class="prompt-body"><pre>Now I want to build the real optimizer using IBM's DOcplex library. Please write Python
+code I can paste directly into a notebook cell. I understand the business rules but not
+the math behind the solver, so please handle the technical details, and explain in a
+code comment anything non-obvious you had to do.
 
 The optimizer decides three things:
   - which new hire slots to fill (yes or no for each)
@@ -1060,7 +1062,7 @@ and how many rules it has.</pre></div>
         </div>
         <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
       </div>
-      <div class="prompt-body"><pre>Please run the optimizer model we just built and show me the answer in plain language.
+      <div class="prompt-body"><pre>Please write Python code I can paste directly into a notebook cell that runs the optimizer model we just built and shows me the answer in plain language.
 
 Time the solve and make sure we get a real solution. If we don't, print the solver
 status and stop with a clear error.
@@ -1097,7 +1099,8 @@ Finish by showing how much better the optimizer scored than each baseline plan.<
 Analytics so planners can see them in their dashboards. They should go into the
 version named in my TARGET_VERSION variable, not any of our existing versions.
 
-I don't have a writing helper yet, so please write one first. Planning Analytics
+I don't have a writing helper yet, so please write Python code I can paste directly
+into a notebook cell — starting with a helper function. Planning Analytics
 won't let us write cell values straight from Python, so the approach we use is a
 temporary TI process. The helper, called write_via_ti, takes a process name and the
 CellPutN lines. It should create the process through the TM1 REST API, run it, and
@@ -1153,8 +1156,9 @@ Employees map to org and department like this: 301-1 to 301-5 are in 301 / 10,
         <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
       </div>
       <div class="prompt-body"><pre>I've just saved the optimizer's results into Planning Analytics, and I'd like to read
-them back to make sure they landed properly. I have a helper called run_mdx that runs
-a query and returns the result. Everything was saved under the version named in my
+them back to make sure they landed properly. Please write Python code I can paste
+directly into a notebook cell. I have a helper called run_mdx that runs a query and
+returns the result. Everything was saved under the version named in my
 TARGET_VERSION variable, so please use that name throughout rather than a hard-coded
 one.
 
