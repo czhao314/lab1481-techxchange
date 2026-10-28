@@ -878,13 +878,14 @@ out of PA using those two helper functions I'll pass in, and produce:
     a maximum merit raise of 10% per person, and an onboarding capacity cap of
     4 new hires at a time
 
-Before saving anything, please run some basic sanity checks — make sure we got
+Execute the python function. Then run some basic sanity checks — make sure we got
 all 12 employees and all 6 slots, no blanks in the fields the optimizer will
 use, FTE values are only 0.5 or 1.0, skill scores are 1 to 5, and attrition
 risk is between 0 and 1. Print a clear pass/fail for each check and stop with
-an error if anything looks wrong.
+an error if anything looks wrong. If anything looks wrong, work to fix the python file
+until all sanity checks pass. 
 
-Then save everything to a file called step2_data.json so the optimizer can
+Once all sanity checks pass, save the final outputs to a file called step2_data.json so the optimizer can
 reload it later without hitting PA again. Return all the objects and constants
 in a dict.
 
