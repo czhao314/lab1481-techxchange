@@ -430,6 +430,70 @@
       border-radius: 3px;
     }
 
+    /* ── Script block (collapsible) ── */
+    .script-block {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 10px 0 4px;
+    }
+    .script-block summary {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      background: var(--surface);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      user-select: none;
+      list-style: none;
+      border-bottom: 1px solid transparent;
+      transition: background 0.12s;
+    }
+    .script-block summary::-webkit-details-marker { display: none; }
+    .script-block[open] summary {
+      border-bottom-color: var(--border);
+    }
+    .script-block summary:hover { background: #eef0f3; }
+    .script-block summary::before {
+      content: "";
+      flex-shrink: 0;
+      width: 7px;
+      height: 7px;
+      border-right: 2px solid var(--muted);
+      border-bottom: 2px solid var(--muted);
+      transform: rotate(-45deg);
+      transition: transform 0.15s;
+    }
+    .script-block[open] summary::before { transform: rotate(45deg); }
+    .script-block .script-copy-btn {
+      margin-left: auto;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 4px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .script-block .script-copy-btn:hover { opacity: 0.85; }
+    .script-block .script-copy-btn.copied { background: var(--green); }
+    .script-block pre {
+      margin: 0;
+      padding: 16px 18px;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.65;
+      white-space: pre;
+      overflow-x: auto;
+      color: var(--text);
+      background: #fafbfc;
+    }
+
     /* ── Notes section ── */
     .notes-grid {
       display: grid;
@@ -1481,7 +1545,82 @@ didn't actually write anything to PA and we need to investigate.</pre></div>
       <li>Click the <strong>Script</strong> tab in the new Process.
         <figure class="setup-fig"><img src="images/pa/pa-script-tab.png" alt="Process editor with Script tab selected showing the #Section Prolog area"></figure>
       </li>
-      <li>Open the link to the script file provided by the lab facilitator. Copy the entire contents and paste them under <code>#Section Prolog</code> in the Script tab.</li>
+      <li>Copy the script below and paste it under <code>#Section Prolog</code> in the Script tab.
+        <details class="script-block">
+          <summary>
+            <span>View deployment script</span>
+            <button class="script-copy-btn" onclick="(function(btn){var pre=btn.closest('details').querySelector('pre');navigator.clipboard.writeText(pre.textContent).then(function(){btn.textContent='Copied!';btn.classList.add('copied');setTimeout(function(){btn.textContent='Copy';btn.classList.remove('copied');},2000);});})(this); event.stopPropagation();">Copy</button>
+          </summary>
+          <pre id="ti-script"># ── Config ────────────────────────────────────────────────────────────────────
+sSpaceID      = '';
+sDeploymentID = '';
+sJobsURL      = '';
+sIAMURL       = '';
+sAPIKey       = '';
+
+# ── Step 1: Get fresh IAM token ───────────────────────────────────────────────
+ExecuteHttpRequest(
+    'POST', sIAMURL,
+    '-k',
+    '-h Content-Type:application/x-www-form-urlencoded',
+    '-d grant_type=urn:ibm:params:oauth:grant-type:apikey&apikey=' | sAPIKey
+);
+
+sTokenResp = HttpResponseGetBody();
+nTokenCode = HttpResponseGetStatusCode();
+LogOutput('INFO', 'IAM status: ' | NumberToString(nTokenCode));
+
+If( nTokenCode &lt;&gt; 200 );
+    LogOutput('ERROR', 'IAM token fetch failed: ' | sTokenResp);
+    ProcessError();
+EndIf;
+
+# ── Parse access_token from response ─────────────────────────────────────────
+sMarker    = '"access_token":"';
+nStart     = SCAN(sMarker, sTokenResp) + LONG(sMarker);
+sRemainder = SUBST(sTokenResp, nStart, LONG(sTokenResp) - nStart + 1);
+nEnd       = SCAN('"', sRemainder) - 1;
+sIAMToken  = SUBST(sRemainder, 1, nEnd);
+
+LogOutput('INFO', 'Token length: ' | NumberToString(LONG(sIAMToken)));
+LogOutput('INFO', 'Token prefix: ' | SUBST(sIAMToken, 1, 10));
+
+If( LONG(sIAMToken) &lt; 100 );
+    LogOutput('ERROR', 'Token parse failed. Raw response: ' | sTokenResp);
+    ProcessError();
+EndIf;
+
+# ── Step 2: Build job payload ─────────────────────────────────────────────────
+sBody = '{"name":"staff-opt-job",'
+      | '"space_id":"' | sSpaceID | '",'
+      | '"deployment":{"id":"' | sDeploymentID | '"},'
+      | '"decision_optimization":{'
+      | '"input_data":[{"id":"params.csv",'
+      | '"fields":["target_version"],'
+      | '"values":[["' | pVersion | '"]]}],'
+      | '"output_data":[{"id":"results.csv"}]}}';
+
+LogOutput('INFO', 'Payload: ' | sBody);
+
+# ── Step 3: Submit job ────────────────────────────────────────────────────────
+sAuthHeader = '-h Authorization: Bearer ' | sIAMToken;
+sBodyOpt    = '-d ' | sBody;
+
+ExecuteHttpRequest('POST', sJobsURL, '-k', '-h Content-Type:application/json', sAuthHeader, sBodyOpt);
+
+nStatusCode = HttpResponseGetStatusCode();
+sResponse   = HttpResponseGetBody();
+
+LogOutput('INFO', 'Job submit HTTP: ' | NumberToString(nStatusCode));
+LogOutput('INFO', 'Job response: ' | sResponse);
+
+If( nStatusCode &lt;&gt; 201 &amp; nStatusCode &lt;&gt; 200 );
+    LogOutput('ERROR', 'FAILED HTTP: ' | NumberToString(nStatusCode) | ' | ' | sResponse);
+EndIf;
+
+LogOutput('INFO', 'Job submitted successfully.');</pre>
+        </details>
+      </li>
       <li>Open the credentials link provided by the lab facilitator and copy the following values to replace the empty strings at the top of the script:
         <ol type="a" style="margin:8px 0 0 20px">
           <li><code>sSpaceID = '';</code></li>
