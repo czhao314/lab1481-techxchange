@@ -1626,6 +1626,15 @@ didn't actually write anything to PA and we need to investigate.</pre></div>
         <figure class="setup-fig"><img src="images/pa/pa-book-configure-process.png" alt="Properties Configure tab with Run Process toggled on and HR_Optimization database selected"></figure>
         <figure class="setup-fig"><img src="images/pa/pa-book-configure-panel.png" alt="Configure panel showing Run Process ON, database, process name, and Refresh after execution checked"></figure>
       </li>
+      <li>Each results table in the book is filtered to show only your version row. You need to update that filter on every tab. For each of the following tabs — <strong>Results Summary</strong>, <strong>Headcount Plan</strong>, <strong>Schedule</strong>, and <strong>Merit &amp; Retention</strong> — do the following:
+        <ol type="a" style="margin:8px 0 0 20px">
+          <li>Click on the results table widget to select it.</li>
+          <li>Click the <strong>MDX</strong> button in the toolbar above the widget.</li>
+          <li>In the MDX editor, find the line that reads <code>[Version].[Version].[christina_DO]</code> and replace <code>christina_DO</code> with the exact <code>pVersion</code> value you set in the workbench process — <code>[YourFirstNameYourLastName]</code> using the same format (e.g. <code>BrittanyBogle</code>).</li>
+          <li>Click the <strong>Run</strong> (▶) button in the MDX editor toolbar to apply, then close the editor.</li>
+        </ol>
+        <div class="callout warn" style="margin:10px 0 0 0"><strong>Important:</strong> The value you enter here must exactly match the <code>pVersion</code> parameter value you set in your <code>RunStaffOptimization_[YourFirstNameYourLastName]</code> process — including capitalization and any underscores.</div>
+      </li>
     </ol>
 
     <hr class="divider" />
