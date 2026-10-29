@@ -686,7 +686,7 @@
       <span class="nb-tag setup">Lab Setup</span>
       <h3>Lab Set Up</h3>
     </div>
-    <p class="section-intro">This lab set up assumes that you have been able to log into IBM Cloud and Planning Analytics, and that Bob is accessible on the machine that you are running the lab on.</p>
+    <p class="section-intro">This lab set up assumes that you have been able to log into Planning Analytics, and that Bob is accessible on the machine that you are running the lab on.</p>
 
     <h4 id="setup-files" class="setup-sub">Access Lab Files</h4>
     <ol class="setup-steps">
@@ -810,8 +810,10 @@
       </tbody>
     </table>
 
+    <div class="callout warn" style="margin-top:28px"><strong>Note:</strong> This is the longest running prompt; it takes around 2 minutes. Explore the output and read through the prompt as Bob makes progress.</div>
+
     <!-- Prompt A -->
-    <div id="prompt-A" class="prompt-card" style="margin-top:28px">
+    <div id="prompt-A" class="prompt-card" style="margin-top:14px">
       <div class="prompt-card-header">
         <div class="meta">
           <div class="prompt-id">Prompt A · Step 2</div>
@@ -895,6 +897,7 @@ If the file isn't there yet, tell the user they need to run load_step2_data
 first.</pre></div>
     </div>
 
+    <div class="callout warn" style="margin-top:14px"><strong>Verify before moving on:</strong> Please verify before moving onto next steps that <code>step2_data.json</code> is populated in your folder/workspace on the left hand side. This indicates that Bob successfully tested and ran the Python <code>data_loader.py</code>. If this is not there, return to Bob and ask Bob to execute the Python function.</div>
 
     <!-- Prompt 3.1 -->
     <div id="prompt-31" class="prompt-card">
@@ -1434,6 +1437,8 @@ Here is what the script should do, in order:
    If anything in steps 2 to 5 fails, print the error, put the message in the status
    column of results.csv, and still write all four files, so the job returns something
    readable instead of crashing.
+
+   You do not need to output the code for this prompt, since we're generating a python script!
     
   </pre></div>
     </div>
@@ -1458,8 +1463,7 @@ wx_client and SOFTWARE_SPEC_ID are already set up from the previous cell.
 Please return the Python code to me so I can copy paste it. The cell does the following:
 1. Creates a compressed archive called clinical_optimizer.tar.gz with the script
    inside as main.py.
-2. Prints what's in the archive and its size so I can confirm it looks right before
-   uploading.
+2. Prints what's in the archive and its size so I can confirm that it's correct.
 3. Uploads the archive as a Decision Optimization model asset (type: do-docplex_22.1)
    using the custom software spec from SOFTWARE_SPEC_ID. The input to the job is a
    field called target_version, and the outputs are status, total_cost,
