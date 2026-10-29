@@ -1309,7 +1309,7 @@ Before you output the code, run a sanity check to make sure your MDX does not ou
 
     <!-- Save notebook reminder -->
     <div class="callout warn" style="margin-top:28px">
-      <strong>Important: Save your notebook.</strong> Before moving on, save <code>step_123_bob.ipynb</code> so all your work is preserved. Use <strong>File → Save</strong> (or <kbd>Ctrl+S</kbd> / <kbd>Cmd+S</kbd>) in Bob. Unsaved cells will be lost if the window closes or the kernel restarts.
+      <strong>Important: Save your notebook before continuing.</strong> All the cells you ran in this section exist in memory — they are not automatically written to disk. In Bob, press <strong>Ctrl+S</strong> (Windows / Linux) or <strong>Cmd+S</strong> (Mac), or go to <strong>File → Save</strong>. If you close the window or the tab without saving, all cell outputs and any edits you made will be permanently lost and you will have to re-run everything from Cell 1.
     </div>
 
     <!-- Notes 2&3 -->
@@ -1365,8 +1365,9 @@ a Planning Analytics person, not a developer, so please handle the batch job det
 The script has to be one self-contained file: it can't import anything from the
 notebook or use a .env file.
 
-Please return the Python code to me so I can copy paste it, and name the file
-score_clinical_optimizer.py. Keep it simple, with short comments I can follow.
+Please create this python code and name the file score_clinical_optimizer.py. 
+Keep it simple, with short comments I can follow. 
+please search and use IBM watsonx decision optimization documentation while building out the script.
 
 Here is what the script should do, in order:
 
