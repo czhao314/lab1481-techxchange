@@ -1260,6 +1260,10 @@ When writing numbers into the CellPutN lines, round them sensibly (for example 2
 decimals for dollars and 6 for percentages), and wrap every text value in single
 quotes.
 
+Do a sanity check on the code, and make sure that the writeback processes work and succeed in pushing data. 
+You can do this testing with temporary/test data. 
+If it errors out, make changes until it is successful. Only then output the code to be copied!
+
 Stop once the four cubes are written and confirmed. Please don't read anything back or
 add a verification step at the end, because I'll check the results in a separate cell
 afterwards.</pre></div>
@@ -1702,7 +1706,7 @@ didn't actually write anything to PA and we need to investigate.</pre></div>
         <ol type="a" style="margin:8px 0 0 20px">
           <li>Click on the results table widget to select it.</li>
           <li>Click the <strong>MDX</strong> button in the toolbar above the widget.</li>
-          <li>In the MDX editor, find the line that reads <code>[Version].[Version].[christina_DO]</code> and replace <code>christina_DO</code> with the exact <code>pVersion</code> value you set in the workbench process — <code>[YourFirstNameYourLastName]</code> using the same format (e.g. <code>BrittanyBogle</code>).</li>
+          <li>In the MDX editor, find the line that reads <code>[Version].[Version].[christina_DO] or [Version].[Version].[Optimization] </code> and replace <code>christina_DO/Optimization</code> with the exact <code>pVersion</code> value you set in the workbench process — <code>[YourFirstNameYourLastName]</code> using the same format (e.g. <code>BrittanyBogle</code>).</li>
           <li>Click the <strong>Run</strong> (▶) button in the MDX editor toolbar to apply, then close the editor.</li>
         </ol>
         <div class="callout warn" style="margin:10px 0 0 0"><strong>Important:</strong> The value you enter here must exactly match the <code>pVersion</code> parameter value you set in your <code>RunStaffOptimization_[YourFirstNameYourLastName]</code> process — including capitalization and any underscores.</div>
