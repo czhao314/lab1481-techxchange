@@ -995,7 +995,7 @@ optimizer does. Please use the scoring, cost and rules-check tools we already se
 The most important requirement: this baseline must be a feasible plan, meaning it
 passes every rule in check_feasibility. An infeasible baseline is useless as a
 comparison, so a plan that breaks the rules is not acceptable, even if it looks like
-what a manager would do.
+what a manager would do. 
 
 A plan is made of three dictionaries: which new hires we fill, which shift each
 person works, and what raise each person gets. Since this is the first of two
@@ -1024,17 +1024,12 @@ risk, raise, and whether they got their preferred shift), the Day and Night tota
 which new hires were filled, and whether the plan passes the rules. I'll reuse it
 for the other plans.
 
-Making sure the plan is feasible is part of the job, not an afterthought. After
-building the plan, run check_feasibility on it. If anything is violated, fix it and
-check again: first lower the shared raise (the total cost has to stay within the
-budget, including the night pay premium and benefits, not just the merit pool), then
-remove the most recently added new hires one at a time, until the plan passes. If it
-still fails after that, stop with an error that lists the problems rather than
-returning a broken plan.
 
-Then run it, show the detail, and tell me whether the plan is feasible. Finish with a
-check that ok1 is True, so the cell stops with a clear message if the baseline doesn't
-solve and the later cells never build on a bad baseline.</pre></div>
+After writing the code, run it and check if the heuristic is feasible.
+If the heuristic is not feasible, do not proceed, and make changes to the heuristic_hire_first until it is feasible.
+
+Only then will you return the code. 
+</pre></div>
     </div>
 
     <!-- Prompt 3.4 -->
@@ -1064,9 +1059,12 @@ move Night-preferring people over until it's covered, and if that's still not en
 move whoever has the lowest attrition risk. For raises, start with the person most
 likely to leave and give them as much as the pool allows, up to 10%, then work down
 the list until the pool runs out. Low-risk people may get nothing.
+You should also show the detail with print_solution_detail.
 
-Then run it, show the detail with print_solution_detail, and tell me whether the
-plan is feasible.</pre></div>
+Then run it. If the heuristic is not feasible, do not proceed, and make changes to the heuristic_retention_first until it is feasible.
+Only then will you output the code. 
+
+</pre></div>
     </div>
 
     <!-- Prompt 3.5 -->
@@ -1367,7 +1365,7 @@ notebook or use a .env file.
 
 Please create this python code and name the file score_clinical_optimizer.py. 
 Keep it simple, with short comments I can follow. 
-please search and use IBM watsonx decision optimization documentation while building out the script.
+Please search and use IBM watsonx decision optimization documentation while building out the script.
 
 Here is what the script should do, in order:
 
@@ -1431,7 +1429,9 @@ Here is what the script should do, in order:
 
    If anything in steps 2 to 5 fails, print the error, put the message in the status
    column of results.csv, and still write all four files, so the job returns something
-   readable instead of crashing.</pre></div>
+   readable instead of crashing.
+    
+  </pre></div>
     </div>
 
     <!-- Prompt 4.4 -->
